@@ -232,3 +232,104 @@ class QuantitativeAnalyticsEngine:
             "bb_middle": round(float(middle.iloc[-1]), 2),
             "bb_lower": round(float(lower.iloc[-1]), 2)
         }
+
+    @staticmethod
+    def calculate_hit_rate(trade_pnls: List[float]) -> float:
+        """Calculate hit rate (% winning trades)."""
+        if not trade_pnls:
+            return 0.0
+        wins = sum(1 for p in trade_pnls if p > 0)
+        return round(float(wins / len(trade_pnls)), 4)
+
+    @staticmethod
+    def calculate_turnover(total_volume_traded: float, portfolio_value: float) -> float:
+        """Calculate annualized portfolio turnover ratio."""
+        if portfolio_value <= 0:
+            return 0.0
+        return round(float(total_volume_traded / portfolio_value), 4)
+
+    @staticmethod
+    def calculate_exposure(long_val: float, short_val: float, portfolio_value: float) -> Dict[str, float]:
+        """Calculate gross and net portfolio exposure percentages."""
+        if portfolio_value <= 0:
+            return {"gross_exposure": 0.0, "net_exposure": 0.0}
+        gross = (abs(long_val) + abs(short_val)) / portfolio_value
+        net = (long_val - abs(short_val)) / portfolio_value
+        return {
+            "gross_exposure": round(float(gross), 4),
+            "net_exposure": round(float(net), 4)
+        }
+
+    @staticmethod
+    def calculate_transaction_costs(trade_value: float, bps: float = 5.0) -> float:
+        """Calculate transaction costs based on basis points."""
+        return round(float(trade_value * (bps / 10000.0)), 2)
+
+    @staticmethod
+    def calculate_slippage(trade_value: float, slippage_bps: float = 3.0) -> float:
+        """Calculate estimated slippage impact."""
+        return round(float(trade_value * (slippage_bps / 10000.0)), 2)
+
+    @staticmethod
+    def calculate_exchange_fees(shares: float, fee_per_share: float = 0.005) -> float:
+        """Calculate exchange and clearing fees per share."""
+        return round(float(shares * fee_per_share), 2)
+
+    @staticmethod
+    def calculate_trade_pnl(
+        entry_price: float,
+        exit_price: float,
+        shares: float,
+        is_long: bool = True,
+        costs: float = 0.0
+    ) -> Dict[str, float]:
+        """Calculate trade-level gross and net P&L."""
+        if is_long:
+            gross_pnl = (exit_price - entry_price) * shares
+        else:
+            gross_pnl = (entry_price - exit_price) * shares
+        net_pnl = gross_pnl - costs
+        ret_pct = (net_pnl / (entry_price * shares)) if (entry_price * shares) > 0 else 0.0
+        return {
+            "gross_pnl": round(float(gross_pnl), 2),
+            "net_pnl": round(float(net_pnl), 2),
+            "return_pct": round(float(ret_pct), 4),
+            "costs": round(float(costs), 2)
+        }
+
+    @staticmethod
+    def calculate_benchmark_comparison(
+        strategy_returns: np.ndarray,
+        benchmark_returns: np.ndarray,
+        risk_free_rate: float = 0.04,
+        trading_days: int = 252
+    ) -> Dict[str, Any]:
+        """Calculate Jensen's Alpha, Beta, Tracking Error, and Information Ratio."""
+        min_len = min(len(strategy_returns), len(benchmark_returns))
+        if min_len < 5:
+            return {
+                "alpha": 0.0,
+                "beta": 1.0,
+                "tracking_error": 0.0,
+                "information_ratio": 0.0
+            }
+        r_s = strategy_returns[-min_len:]
+        r_b = benchmark_returns[-min_len:]
+
+        var_b = np.var(r_b, ddof=1)
+        beta = float(np.cov(r_s, r_b)[0, 1] / var_b) if var_b > 0 else 1.0
+
+        ann_rs = float(np.mean(r_s) * trading_days)
+        ann_rb = float(np.mean(r_b) * trading_days)
+        alpha = ann_rs - (risk_free_rate + beta * (ann_rb - risk_free_rate))
+
+        diff = r_s - r_b
+        te = float(np.std(diff, ddof=1) * np.sqrt(trading_days))
+        ir = float(np.mean(diff) * trading_days / te) if te > 0 else 0.0
+
+        return {
+            "alpha": round(float(alpha), 4),
+            "beta": round(float(beta), 4),
+            "tracking_error": round(float(te), 4),
+            "information_ratio": round(float(ir), 4)
+        }
