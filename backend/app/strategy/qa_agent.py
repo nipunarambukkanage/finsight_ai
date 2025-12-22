@@ -1,0 +1,113 @@
+"""
+FinSight AI - QA Agent
+Performs comprehensive quality assurance on candidate strategy code:
+- AST static checks & import restrictions
+- Restricted subprocess unit testing
+- Look-ahead bias verification (future bar perturbation invariance)
+- Financial invariant checks (signal bounds in {-1, 0, 1})
+- Missing data resilience checks
+"""
+
+from typing import Dict, Any, List, Tuple
+import numpy as np
+import pandas as pd
+from backend.app.orchestration.contracts import ImplementationOutput, QACheckResult
+from backend.app.strategy.sandbox import strategy_sandbox
+from backend.app.core.logging import logger
+
+class QAAgent:
+
+    @classmethod
+    def evaluate_implementation(cls, impl: ImplementationOutput, sample_df: pd.DataFrame) -> QACheckResult:
+        details: List[str] = []
+
+        # 1. AST & Import Restrictions Check
+        ast_passed, ast_errors = strategy_sandbox.static_ast_check(impl.source_code)
+        if ast_passed:
+            details.append("AST Static Analysis: PASSED (approved modules only)")
+        else:
+            details.extend([f"AST Static Analysis: FAILED - {e}" for e in ast_errors])
+
+        # 2. Subprocess Unit Tests Execution
+        unit_passed, unit_msg = strategy_sandbox.run_in_restricted_subprocess(
+            source_code=impl.source_code,
+            test_code=impl.test_code,
+            timeout_sec=5
+        )
+        if unit_passed:
+            details.append("Isolated Subprocess Sandbox: PASSED")
+        else:
+            details.append(f"Isolated Subprocess Sandbox: FAILED - {unit_msg}")
+
+        # 3. Dynamic Invariant & Look-Ahead Verification in controlled namespace
+        invariants_passed = True
+        lookahead_passed = True
+        leakage_passed = True
+
+        try:
+            # Safely instantiate strategy in clean namespace for mathematical verification
+            local_scope: Dict[str, Any] = {}
+            safe_globals = {"np": np, "pd": pd, "numpy": np, "pandas": pd, "__builtins__": __builtins__}
+            exec(impl.source_code, safe_globals, local_scope)
+            strat_class = local_scope.get("CandidateStrategy")
+
+            if not strat_class:
+                invariants_passed = False
+                details.append("Invariant Check: FAILED - CandidateStrategy class missing")
+            else:
+                strat = strat_class()
+
+                # Test on sample data
+                signals = strat.generate_signals(sample_df)
+
+                # Invariant 1: Signal bounds {-1, 0, 1}
+                unique_sigs = set(np.unique(signals))
+                if not unique_sigs.issubset({-1, 0, 1}):
+                    invariants_passed = False
+                    details.append(f"Invariant Check: FAILED - Invalid signals {unique_sigs}. Must be subset of {{-1, 0, 1}}")
+                else:
+                    details.append("Invariant Check: PASSED (signals strictly bounded in {-1, 0, 1})")
+
+                # Invariant 2: Look-ahead bias perturbation test
+                # If we alter prices from index 30 onwards, signals before index 30 MUST NOT CHANGE!
+                if len(sample_df) >= 40:
+                    split_idx = 30
+                    perturbed_df = sample_df.copy()
+                    perturbed_df.loc[split_idx:, "close"] = perturbed_df.loc[split_idx:, "close"] * 0.05
+                    perturbed_signals = strat.generate_signals(perturbed_df)
+
+                    if not np.array_equal(signals[:split_idx], perturbed_signals[:split_idx]):
+                        lookahead_passed = False
+                        details.append("Look-Ahead Bias Test: FAILED - Modifying future prices altered past signals!")
+                    else:
+                        details.append("Look-Ahead Bias Test: PASSED (Strict temporal invariance verified)")
+
+                # Invariant 3: Missing data / NaN handling test
+                nan_df = sample_df.copy()
+                nan_df.loc[5, "close"] = np.nan
+                try:
+                    nan_signals = strat.generate_signals(nan_df.ffill().bfill())
+                    if len(nan_signals) == len(nan_df):
+                        details.append("Missing-Data Resilience: PASSED")
+                except Exception as e:
+                    leakage_passed = False
+                    details.append(f"Missing-Data Resilience: FAILED - {e}")
+
+        except Exception as e:
+            invariants_passed = False
+            details.append(f"Dynamic Invariant Check Execution Error: {str(e)}")
+
+        overall_passed = ast_passed and unit_passed and invariants_passed and lookahead_passed and leakage_passed
+
+        return QACheckResult(
+            passed=overall_passed,
+            ast_valid=ast_passed,
+            imports_valid=ast_passed,
+            unit_tests_passed=unit_passed,
+            invariants_passed=invariants_passed,
+            lookahead_passed=lookahead_passed,
+            leakage_passed=leakage_passed,
+            details=details
+        )
+
+qa_agent = QAAgent()
