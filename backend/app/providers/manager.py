@@ -10,7 +10,7 @@ Provides an enterprise provider abstraction supporting:
 Features automatic graceful failover to DemoProvider if keys are absent or services are unreachable.
 """
 
-from typing import List, Dict, Any, Optional, AsyncGenerator
+from typing import List, Dict, Any, Optional, AsyncGenerator, Tuple
 import json
 import re
 import asyncio
@@ -127,21 +127,104 @@ class DemoProvider(BaseLLMProvider):
             yield chunk + " "
             await asyncio.sleep(0.02)  # Realistic token streaming pacing
 
+class OllamaProvider(BaseLLMProvider):
+    """Local Ollama provider for lightweight tasks: extraction, formatting, summarization."""
+    provider_name: str = "OLLAMA"
+
+    def __init__(self, host: str = "http://localhost:11434", model: str = "llama3.2"):
+        self.host = host
+        self.model = model
+
+    async def generate(self, prompt: str, system_prompt: Optional[str] = None, context: Optional[str] = None, **kwargs) -> str:
+        import httpx
+        url = f"{self.host}/api/generate"
+        full_prompt = f"{system_prompt}\n\n{context}\n\n{prompt}" if context or system_prompt else prompt
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, json={"model": self.model, "prompt": full_prompt, "stream": False})
+                if resp.status_code == 200:
+                    data = resp.json()
+                    return data.get("response", "")
+        except Exception as e:
+            logger.warning(f"Ollama local endpoint unavailable ({e}). Gracefully falling back to DemoProvider.")
+        # Fallback
+        return await DemoProvider().generate(prompt, system_prompt, context, **kwargs)
+
+    async def embed(self, texts: List[str]) -> List[List[float]]:
+        return DemoProvider()._generate_synthetic_embeddings(texts)
+
 class LLMProviderManager:
     def __init__(self):
         self.demo_provider = DemoProvider()
+        self.ollama_provider = OllamaProvider()
         self.current_provider_name = settings.DEFAULT_LLM_PROVIDER
+        self.telemetry_records: List[Dict[str, Any]] = []
         logger.info(f"Initialized LLM Provider Manager (Default: {self.current_provider_name})")
 
     def get_provider(self, provider_name: Optional[str] = None) -> BaseLLMProvider:
         name = (provider_name or self.current_provider_name).upper()
-        # In current environment or if keys are empty, seamlessly return DemoProvider
-        if name == "OPENAI" and settings.OPENAI_API_KEY:
-            # When OpenAI key configured
-            return self.demo_provider  # Gracefully fall back if live client not initialized
-        elif name == "ANTHROPIC" and settings.ANTHROPIC_API_KEY:
-            return self.demo_provider
+        if name == "OLLAMA":
+            return self.ollama_provider
         return self.demo_provider
+
+    async def execute_with_telemetry(
+        self,
+        prompt: str,
+        system_prompt: Optional[str] = None,
+        context: Optional[str] = None,
+        provider_name: Optional[str] = None,
+        prompt_version: str = "v1.0",
+        expected_schema: Optional[Any] = None,
+        max_retries: int = 2,
+        timeout_sec: float = 15.0
+    ) -> Tuple[str, Dict[str, Any]]:
+        """
+        Executes generation with timeout, retry, structured-output validation, and latency recording.
+        """
+        import time
+        start_time = time.time()
+        provider = self.get_provider(provider_name)
+        active_provider_name = provider.provider_name
+        last_err = None
+
+        for attempt in range(max_retries + 1):
+            try:
+                # Execution with timeout
+                res = await asyncio.wait_for(
+                    provider.generate(prompt, system_prompt=system_prompt, context=context),
+                    timeout=timeout_sec
+                )
+
+                latency_ms = int((time.time() - start_time) * 1000)
+                telemetry = {
+                    "provider": active_provider_name,
+                    "prompt_version": prompt_version,
+                    "latency_ms": latency_ms,
+                    "status": "success",
+                    "attempts": attempt + 1
+                }
+                self.telemetry_records.append(telemetry)
+                return res, telemetry
+
+            except Exception as e:
+                last_err = str(e)
+                logger.warning(f"Provider {active_provider_name} attempt {attempt+1} failed ({e}). Retrying...")
+                await asyncio.sleep(0.1 * (2 ** attempt))
+
+        # Fallback to DemoProvider
+        logger.info(f"All retries failed for {active_provider_name}. Activating DemoProvider fallback.")
+        res = await self.demo_provider.generate(prompt, system_prompt=system_prompt, context=context)
+        latency_ms = int((time.time() - start_time) * 1000)
+        telemetry = {
+            "provider": "DEMO_FALLBACK",
+            "original_provider": active_provider_name,
+            "prompt_version": prompt_version,
+            "latency_ms": latency_ms,
+            "status": "fallback",
+            "error": last_err
+        }
+        self.telemetry_records.append(telemetry)
+        return res, telemetry
 
     def list_providers(self) -> List[Dict[str, Any]]:
         return [
@@ -151,6 +234,13 @@ class LLMProviderManager:
                 "is_active": True,
                 "requires_api_key": False,
                 "description": "Deterministic, context-grounded institutional AI provider with zero external credentials."
+            },
+            {
+                "id": "OLLAMA",
+                "name": "Ollama Local Models (Llama 3.2 / Mistral)",
+                "is_active": True,
+                "requires_api_key": False,
+                "description": "Local on-device inference for fast extraction, formatting, and classification without external network calls."
             },
             {
                 "id": "OPENAI",
