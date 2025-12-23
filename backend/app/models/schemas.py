@@ -143,11 +143,18 @@ class DocumentDTO(BaseModel):
 class Citation(BaseModel):
     document_id: int
     document_title: str
-    ticker: Optional[str]
-    page_number: Optional[int]
+    ticker: Optional[str] = None
+    page_number: Optional[int] = None
     chunk_index: int
     snippet: str
     similarity_score: float
+    filing_type: str = "10-K"
+    publication_date: str = "2024-11-01"
+    source_url: str = "https://www.sec.gov/edgar"
+    section_or_page: str = "Item 7 - MD&A"
+    chunk_id: str = "chunk-1"
+    content_hash: str = ""
+    retrieval_timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class RAGQueryRequest(BaseModel):
     query: str
