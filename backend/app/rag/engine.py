@@ -18,6 +18,26 @@ from backend.app.models.schemas import (
 from backend.app.rag.sample_documents import SAMPLE_FINANCIAL_DOCUMENTS
 from backend.app.providers.manager import provider_manager
 from backend.app.core.logging import logger
+import hashlib
+import re
+
+class PromptInjectionFilter:
+    """Sanitizes untrusted SEC document chunk text to prevent prompt injection attacks."""
+    INJECTION_PATTERNS = [
+        re.compile(r"ignore\s+(previous|prior)\s+(instructions|prompts)", re.IGNORECASE),
+        re.compile(r"system\s*prompt\s*:", re.IGNORECASE),
+        re.compile(r"override\s+(permission|role|security)", re.IGNORECASE),
+        re.compile(r"you\s+are\s+now\s+(in\s+)?(developer|admin|god|debug)\s+mode", re.IGNORECASE),
+        re.compile(r"disregard\s+(all\s+)?safety\s+guidelines", re.IGNORECASE)
+    ]
+
+    @classmethod
+    def sanitize(cls, text: str) -> str:
+        cleaned = text
+        for pat in cls.INJECTION_PATTERNS:
+            if pat.search(cleaned):
+                cleaned = pat.sub("[REDACTED_UNTRUSTED_INSTRUCTION]", cleaned)
+        return cleaned
 
 class ChunkRecord:
     def __init__(
@@ -28,15 +48,26 @@ class ChunkRecord:
         page: Optional[int],
         chunk_idx: int,
         content: str,
-        embedding: List[float]
+        embedding: List[float],
+        filing_type: str = "10-K",
+        publication_date: str = "2024-11-01",
+        source_url: str = "https://www.sec.gov/edgar",
+        section: str = "Item 7 - MD&A"
     ):
         self.doc_id = doc_id
         self.doc_title = doc_title
         self.ticker = ticker
         self.page = page
         self.chunk_idx = chunk_idx
-        self.content = content
+        # Sanitize against prompt-injection
+        self.content = PromptInjectionFilter.sanitize(content)
         self.embedding = np.array(embedding, dtype=np.float32)
+        self.filing_type = filing_type
+        self.publication_date = publication_date
+        self.source_url = source_url
+        self.section = section
+        self.chunk_id = f"chunk-{doc_id}-{chunk_idx}"
+        self.content_hash = hashlib.sha256(self.content.encode('utf-8')).hexdigest()
 
 class RAGKnowledgeEngine:
     def __init__(self):
@@ -78,7 +109,11 @@ class RAGKnowledgeEngine:
                     page=c.get("page", 1),
                     chunk_idx=i,
                     content=c["content"],
-                    embedding=embeddings[i]
+                    embedding=embeddings[i],
+                    filing_type=sample["doc_type"],
+                    publication_date=f"{sample['year']}-11-01",
+                    source_url="https://www.sec.gov/edgar",
+                    section=f"Item {c.get('page', 1)} - MD&A"
                 )
                 self.chunks.append(record)
 
@@ -109,6 +144,21 @@ class RAGKnowledgeEngine:
         """Execute full RAG workflow: Retrieve -> Rank -> Grounded Synthesis -> Attach Citations."""
         results = self.search_chunks(req.query, ticker=req.ticker, top_k=req.top_k)
 
+        # Uncertainty handling if evidence is missing or entirely ungrounded
+        if not results or results[0][1] <= 0.0:
+            return RAGQueryResponse(
+                query=req.query,
+                answer=(
+                    "UNCERTAINTY NOTICE: The retrieved SEC filings do not contain sufficient verified evidence "
+                    "to answer this query with institutional confidence. Rather than extrapolating, "
+                    "FinSight AI documents this data limitation."
+                ),
+                citations=[],
+                evidence_coverage=0.0,
+                is_demo_provider=True,
+                disclaimer="DECISION SUPPORT ONLY: Data limitation documented."
+            )
+
         citations: List[Citation] = []
         context_snippets = []
 
@@ -120,7 +170,14 @@ class RAGKnowledgeEngine:
                 page_number=chunk.page,
                 chunk_index=chunk.chunk_idx,
                 snippet=chunk.content[:250] + "...",
-                similarity_score=round(float(score), 3)
+                similarity_score=round(float(score), 3),
+                filing_type=chunk.filing_type,
+                publication_date=chunk.publication_date,
+                source_url=chunk.source_url,
+                section_or_page=chunk.section,
+                chunk_id=chunk.chunk_id,
+                content_hash=chunk.content_hash,
+                retrieval_timestamp=datetime.now(timezone.utc)
             )
             citations.append(citation)
             context_snippets.append(f"[{chunk.doc_title} (Page {chunk.page})]:\n{chunk.content}")
