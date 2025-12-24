@@ -244,3 +244,200 @@ export interface EvaluationBenchmark {
     ground_truth_verified: boolean;
   }>;
 }
+
+export interface ResearchOutputDTO {
+  research_id: string;
+  ticker: string;
+  claims: string[];
+  methodology: string;
+  sources: Array<{
+    doc_id: number;
+    title: string;
+    page: number;
+    filing_type: string;
+    chunk_id: string;
+    content_hash: string;
+    score: number;
+    snippet: string;
+  }>;
+  assumptions: string[];
+  limitations: string[];
+  confidence: number;
+  created_at: string;
+}
+
+export interface StrategySpecificationDTO {
+  strategy_id: string;
+  version: string;
+  hypothesis: string;
+  required_inputs: string[];
+  features: string[];
+  entry_conditions: string[];
+  exit_conditions: string[];
+  risk_constraints: Record<string, any>;
+  holding_period: string;
+  source_references: string[];
+  created_at: string;
+}
+
+export interface ImplementationOutputDTO {
+  strategy_id: string;
+  version: string;
+  source_code: string;
+  test_code: string;
+  dependencies: string[];
+  static_check_result: Record<string, any>;
+  review_status: string;
+  created_at: string;
+}
+
+export interface QACheckResultDTO {
+  passed: bool;
+  ast_valid: bool;
+  imports_valid: bool;
+  unit_tests_passed: bool;
+  invariants_passed: bool;
+  lookahead_passed: bool;
+  leakage_passed: bool;
+  details: string[];
+  checked_at: string;
+}
+
+type bool = boolean;
+
+export interface BacktestResultDTO {
+  strategy_id: string;
+  version: string;
+  snapshot_id: string;
+  train_period: string;
+  val_period: string;
+  test_period: string;
+  equity_curve: Array<{
+    date: string;
+    equity: number;
+    cash: number;
+    position_shares: number;
+    benchmark_price: number;
+  }>;
+  trades: Array<{
+    trade_id: string;
+    ticker: string;
+    side: string;
+    entry_time: string;
+    entry_price: number;
+    exit_time?: string;
+    exit_price?: number;
+    shares: number;
+    gross_pnl?: number;
+    net_pnl?: number;
+    return_pct?: number;
+    total_costs?: number;
+  }>;
+  metrics: {
+    initial_capital: number;
+    ending_equity: number;
+    total_return: number;
+    annualized_return: number;
+    annualized_volatility: number;
+    sharpe_ratio: number;
+    sortino_ratio: number;
+    max_drawdown: number;
+    total_trades: number;
+    hit_rate: number;
+    turnover: number;
+    total_transaction_costs: number;
+    total_slippage_incurred: number;
+    total_exchange_fees: number;
+    alpha: number;
+    beta: number;
+    information_ratio: number;
+  };
+  suspicious_flags: string[];
+}
+
+export interface ApprovalRecordDTO {
+  approval_id: string;
+  workflow_id: string;
+  artifact_hash: string;
+  requested_by: string;
+  reviewed_by?: string;
+  decision: string;
+  reason?: string;
+  created_at: string;
+  reviewed_at?: string;
+}
+
+export interface ShadowSimulationResultDTO {
+  simulation_id: string;
+  strategy_id: string;
+  status: string;
+  virtual_portfolio: {
+    cash: number;
+    shares: number;
+    position_value: number;
+    total_equity: number;
+    initial_cash: number;
+  };
+  hypothetical_orders: Array<{
+    order_id: string;
+    ticker: string;
+    side: string;
+    shares: number;
+    order_type: string;
+    status: string;
+    timestamp: string;
+  }>;
+  simulated_fills: Array<{
+    fill_id: string;
+    order_id: string;
+    price: number;
+    shares: number;
+    costs: number;
+    slippage: number;
+    timestamp: string;
+  }>;
+  slippage_incurred: number;
+  simulated_pnl: number;
+  current_exposure: number;
+  is_simulation_only: bool;
+  disclaimer: string;
+}
+
+export interface RecommendationOutputDTO {
+  ticker: string;
+  action: 'BUY' | 'SELL' | 'HOLD' | 'NO_ACTION' | 'INSUFFICIENT_EVIDENCE';
+  confidence: number;
+  strategy_id: string;
+  strategy_version: string;
+  time_horizon: string;
+  supporting_evidence: string[];
+  risk_flags: string[];
+  backtest_summary: Record<string, any>;
+  shadow_summary: Record<string, any>;
+  timestamp: string;
+  disclaimer: string;
+}
+
+export interface WorkflowStateDTO {
+  workflow_id: string;
+  run_id: string;
+  ticker: string;
+  status: string;
+  stage: string;
+  research_output?: ResearchOutputDTO;
+  strategy_spec?: StrategySpecificationDTO;
+  candidate_code?: ImplementationOutputDTO;
+  qa_results?: QACheckResultDTO;
+  backtest_result?: BacktestResultDTO;
+  approval_record?: ApprovalRecordDTO;
+  shadow_result?: ShadowSimulationResultDTO;
+  recommendation?: RecommendationOutputDTO;
+  history: Array<{
+    timestamp: string;
+    node: string;
+    status: string;
+    details: Record<string, any>;
+  }>;
+  retry_count: number;
+  error_message?: string;
+}
