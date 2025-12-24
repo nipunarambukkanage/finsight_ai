@@ -23,6 +23,10 @@ from backend.app.api.v1.ml import router as ml_router
 from backend.app.api.v1.multimodal import router as multimodal_router
 from backend.app.api.v1.voice import router as voice_router
 from backend.app.api.v1.showcase import router as showcase_router
+from backend.app.api.v1.workflows import router as workflows_router
+from backend.app.api.v1.approvals import router as approvals_router
+from backend.app.api.v1.strategies import router as strategies_router
+from backend.app.api.v1.system import router as system_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -120,6 +124,10 @@ app.include_router(ml_router, prefix=f"{api_v1}/ml", tags=["Machine Learning Sto
 app.include_router(multimodal_router, prefix=f"{api_v1}/multimodal", tags=["Multimodal Vision AI"])
 app.include_router(voice_router, prefix=f"{api_v1}/voice", tags=["Voice AI Assistant"])
 app.include_router(showcase_router, prefix=f"{api_v1}/showcase", tags=["Technology Showcase & Evaluation"])
+app.include_router(workflows_router, prefix=f"{api_v1}/workflows", tags=["Autonomous Research Workflows"])
+app.include_router(approvals_router, prefix=f"{api_v1}/approvals", tags=["Human Approvals"])
+app.include_router(strategies_router, prefix=f"{api_v1}/strategies", tags=["Strategies & Shadow Trading"])
+app.include_router(system_router, prefix=f"{api_v1}/system", tags=["System Diagnostics"])
 
 if __name__ == "__main__":
     import uvicorn
