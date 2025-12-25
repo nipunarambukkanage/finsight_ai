@@ -19,6 +19,7 @@ import { MultimodalPage } from './pages/MultimodalPage';
 import { VoicePage } from './pages/VoicePage';
 import { ShowcasePage } from './pages/ShowcasePage';
 import { SettingsPage } from './pages/SettingsPage';
+import { WorkflowPage } from './pages/WorkflowPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,6 +57,7 @@ export const App: React.FC = () => {
                 <Route path="/stocks/:ticker" element={<StockWorkspacePage />} />
                 <Route path="/assistant" element={<AssistantPage />} />
                 <Route path="/research-agent" element={<ResearchAgentPage />} />
+                <Route path="/workflow" element={<WorkflowPage />} />
                 <Route path="/documents" element={<DocumentsPage />} />
                 <Route path="/rag" element={<RAGExplorerPage />} />
                 <Route path="/sentiment" element={<SentimentPage />} />
