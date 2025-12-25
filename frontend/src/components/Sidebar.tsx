@@ -15,7 +15,8 @@ import {
   Mic,
   Award,
   Settings,
-  ShieldCheck
+  ShieldCheck,
+  Workflow
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -27,6 +28,7 @@ export const Sidebar: React.FC = () => {
         { path: '/stocks', label: 'Stocks & Markets', icon: TrendingUp, id: 'nav-stocks' },
         { path: '/assistant', label: 'AI Research Assistant', icon: Bot, id: 'nav-assistant' },
         { path: '/research-agent', label: 'AI Research Agent', icon: Sparkles, id: 'nav-agent', badge: 'PRO' },
+        { path: '/workflow', label: 'Autonomous Research Workflow', icon: Workflow, id: 'nav-workflow', badge: 'NEW' },
         { path: '/documents', label: 'Document Intelligence', icon: FileText, id: 'nav-documents' },
         { path: '/rag', label: 'RAG Knowledge System', icon: Database, id: 'nav-rag' },
       ]
