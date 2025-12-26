@@ -1,95 +1,82 @@
-# FinSight AI: Executive & Client Demonstration Script
+# FinSight AI: 10-Minute Executive & Interview Demonstration Script
 
-## Demonstration Overview
-- **Duration**: 12 – 15 minutes
-- **Target Audience**: Institutional Investors, Chief Technology Officers, Heads of Equity Research, Quant Leads
-- **Objective**: Showcase how FinSight AI combines generative AI, multi-stage autonomous agents, institutional quantitative analytics, and zero-hallucination RAG into a Bloomberg-grade decision engine.
+## 1. Demonstration Metadata
+- **Duration**: Exactly 10 minutes
+- **Target Audience**: Quant Leads, Heads of Quantitative Research, AI Engineering Directors, CTOs
+- **Core Message**: FinSight AI is an institutional research and decision-support engine combining stateful LangGraph agent pipelines, verifiable SEC filing RAG, AST code sandboxing, deterministic backtesting, and simulation-only shadow execution without any real-money order routing.
 
 ---
 
-### Scene 1: Executive Overview & Platform Dashboard (00:00 – 02:00)
-**Click Path**: Open `http://localhost:5173/` $\rightarrow$ Institutional Market Overview
+## 2. Timed Scene-by-Scene Script
 
+### Scene 1: Introduction & Regulatory Guardrails (00:00 – 01:30)
+**Click Path**: Open `http://localhost:5173/` $\rightarrow$ Dashboard
 - **Presenter Talking Point**:
-  > "Welcome to FinSight AI. Modern equity research is overwhelmed by volume—thousands of pages of SEC filings, earnings call audio, and volatile macroeconomic data. FinSight AI brings Wall Street-grade quantitative rigor and generative AI intelligence into a single unified terminal."
-- **Actions to Perform**:
-  1. Highlight the institutional dark theme, glassmorphism cards, and live telemetry pill in the header.
-  2. Point to the top **Regulatory Disclaimer Banner**: *"Notice that compliance and responsible AI are engineered directly into the core—no ungrounded trade execution or black-box predictions."*
-  3. Review the Ticker Bar (AAPL, MSFT, NVDA, GOOGL, AMZN, TSLA) and Market Status indicator.
+  > *"Welcome to FinSight AI. In quantitative finance, the challenge with generative AI is not generating text—it's guaranteeing determinism, verifiable lineage, and operational safety. FinSight AI is purpose-built as an institutional research and trading-decision support engine. Notice the regulatory banner at the top: the system enforces an absolute invariant—it never places real-money trades or connects to brokerage execution APIs."*
+- **Key Actions**:
+  1. Highlight the institutional dark theme, telemetry metrics, and regulatory disclaimer.
+  2. Point to the Ticker Selector (`AAPL`, `MSFT`, `NVDA`) and explain zero-credential demo mode.
 
 ---
 
-### Scene 2: Deep-Dive Stock Workspace & Canvas Charting (02:00 – 04:30)
-**Click Path**: Click **"Stock Workspace"** in sidebar $\rightarrow$ Select `NVDA`
-
+### Scene 2: The Autonomous Workflow Hub & LangGraph State Machine (01:30 – 04:00)
+**Click Path**: Click **"Autonomous Research Workflow"** in the sidebar (`/workflow`)
 - **Presenter Talking Point**:
-  > "Let's examine NVIDIA. Notice the high-performance HTML5 Canvas chart. We built our own custom canvas rendering engine to deliver sub-millisecond responsive crosshairs, volume distributions, and technical overlay calculations without heavy third-party bundle bloat."
-- **Actions to Perform**:
-  1. Toggle Technical Overlays: SMA 20, SMA 50, Bollinger Bands, and RSI (14).
-  2. Hover over candlestick bars to demonstrate real-time crosshair inspection (Open, High, Low, Close, Volume).
-  3. Review the Key Financial Metrics panel: P/E, EV/EBITDA, Free Cash Flow Yield, and 52-week trading bounds.
+  > *"Rather than relying on unconstrained chat prompts, our flagship capability is a stateful LangGraph workflow. It coordinates specialized agents through strict sequential stages: Market Data Snapshot, SEC Evidence Retrieval, Strategy Specification, Developer Agent Code Generation, QA Agent Sandbox Validation, Deterministic Backtesting, Human Approval Gate, and Shadow Simulation."*
+- **Key Actions**:
+  1. Click **"Initiate Autonomous Workflow"** for `AAPL`.
+  2. Observe the interactive pipeline stepper animating across the 9 stages.
+  3. Show the workflow pausing cleanly at **Stage 7: Approval Gate (`WAITING_APPROVAL`)**.
 
 ---
 
-### Scene 3: SEC Filing RAG & Verifiable Citations (04:30 – 07:00)
-**Click Path**: Click **"AI Assistant"** in sidebar $\rightarrow$ Type or click sample prompt: *"What are Apple's primary supply chain and antitrust risk factors in their 2024 10-K?"*
-
+### Scene 3: SEC Evidence Retrieval & Prompt Injection Defense (04:00 – 05:30)
+**Click Path**: Select the **"SEC Evidence"** tab in the Workflow Hub
 - **Presenter Talking Point**:
-  > "The biggest barrier to LLM adoption in finance is hallucination. If an analyst presents an ungrounded figure to an investment committee, it can result in multi-million dollar losses. Watch how FinSight AI grounds every single assertion."
-- **Actions to Perform**:
-  1. Submit the prompt and observe the streaming response.
-  2. Point to the in-line interactive citation pill: `[Doc: Apple Inc. Fiscal 2024 Form 10-K, Page 42]`.
-  3. Click the citation pill to reveal the **Citation Drawer** showing the exact source filing excerpt, filing date, and cosine similarity confidence score.
+  > *"Notice how the Research Agent grounds its thesis in audited 10-K disclosures. Every claim links to an immutable citation with page number, filing date, and cosine similarity. Furthermore, because corporate filings are untrusted external text, our RAG pipeline passes all chunks through a Prompt Injection Sanitizer that strips prompt hijacking attempts before model ingestion."*
+- **Key Actions**:
+  1. Inspect the retrieved citations and corporate risk excerpts for Apple.
+  2. Point out the zero-hallucination confidence score and data limitation transparency.
 
 ---
 
-### Scene 4: FinBERT Sentiment & Filing Diff Analysis (07:00 – 09:00)
-**Click Path**: Click **"Sentiment Engine"** $\rightarrow$ Navigate to **"Filing Comparison"** tab
-
+### Scene 4: Developer Agent, AST Sandbox & QA Look-Ahead Perturbation (05:30 – 07:30)
+**Click Path**: Click **"Candidate Strategy Code"** tab $\rightarrow$ Switch to **"QA Audit & Bias Checks"** tab
 - **Presenter Talking Point**:
-  > "Standard NLP models fail on financial language because words like 'liability' or 'cost reduction' have nuanced corporate meanings. Here, we run Hugging Face FinBERT, specifically fine-tuned on financial corpora."
-- **Actions to Perform**:
-  1. Inspect the 7-day and 30-day sentiment score breakdown for `MSFT` and `AAPL`.
-  2. In the Filing Comparison tool, select **Apple 2023 10-K** vs. **Apple 2024 10-K**.
-  3. Highlight the highlighted diff showing newly inserted risk language regarding regulatory antitrust scrutiny in Europe and AI data center energy commitments.
+  > *"Here is where engineering rigor shines. The Developer Agent wrote executable Python code for a dual-momentum volatility breakout strategy. Before execution, the QA Agent subjected the code to Abstract Syntax Tree (AST) static analysis. We whitelist only mathematical libraries—any attempt to import `os`, `socket`, or call `exec()` is blocked at the grammar level. Next, the QA Agent runs a look-ahead perturbation test: it shocks future prices to prove the strategy doesn't peek forward with negative shifts."*
+- **Key Actions**:
+  1. Display the syntax-highlighted candidate Python code (`generate_signals(df)`).
+  2. Show the green QA badges: AST Import Filter Passed, Unit Test Passed, Look-Ahead Bias Absent, Missing Data Resilient.
 
 ---
 
-### Scene 5: Autonomous Multi-Stage Research Agent (09:00 – 11:30)
-**Click Path**: Click **"Research Agent"** $\rightarrow$ Enter `AAPL` $\rightarrow$ Click **"Run Full Autonomous Research Run"**
-
+### Scene 5: Deterministic Backtest & Human-in-the-Loop Approval (07:30 – 09:00)
+**Click Path**: Click **"Deterministic Backtest"** tab $\rightarrow$ Switch to **"Human Approval Gate"** tab
 - **Presenter Talking Point**:
-  > "Rather than a simple one-shot prompt, our Autonomous Research Agent executes an 8-stage pipeline mirroring a Wall Street research associate's complete analytical workflow."
-- **Actions to Perform**:
-  1. Watch the live 8-stage stepper animate through Market Data, Fundamentals, FinBERT Sentiment, Filing RAG, Technicals, Risk Analytics, Time-Series ML, and Synthesis.
-  2. Inspect the live streaming log terminal displaying millisecond-by-millisecond execution telemetry.
-  3. View the generated 14-section institutional report.
-  4. Demonstrate the **"Export Markdown"** and **"Export JSON"** buttons.
+  > *"In the backtest tab, we observe deterministic performance on a strict out-of-sample test partition: Sharpe ratio of 1.42, 5.0 bps slippage per trade, and complete transaction cost accounting. But notice: the agent cannot autonomously deploy to simulation. Wall Street risk management demands human oversight. Here in the Approval Gate, the operator inspects the SHA-256 code fingerprint, confirms separation of duties, and provides approval."*
+- **Key Actions**:
+  1. Inspect the equity curve and trade ledger showing execution prices and slippage.
+  2. In the Approval Gate modal, enter reviewer notes: *"Reviewed out-of-sample Sharpe and AST report. Approved for paper simulation."*
+  3. Click **"Approve & Authorize Shadow Simulation"**.
 
 ---
 
-### Scene 6: Quantitative Risk & Responsible ML Labs (11:30 – 13:30)
-**Click Path**: Click **"Analytics Lab"** $\rightarrow$ Switch to **"ML Lab"**
-
+### Scene 6: Shadow Trading Simulation & Decision Brief (09:00 – 10:00)
+**Click Path**: Click **"Shadow Simulation"** tab $\rightarrow$ View Final Recommendation Banner
 - **Presenter Talking Point**:
-  > "Many finance applications show fake 95% directional prediction accuracy by secretly leaking future data into training. At FinSight AI, we enforce strict non-anticipative temporal splitting—no random shuffling, no look-ahead bias."
-- **Actions to Perform**:
-  1. In Analytics Lab, inspect the interactive Portfolio Correlation Heatmap, 95% and 99% Value at Risk (VaR), and Conditional VaR (Expected Shortfall).
-  2. In ML Lab, select **Gradient Boosting Classifier**, review the out-of-sample confusion matrix, ROC-AUC curve, and feature importance rankings (volatility clustering and volume surge).
+  > *"Once approved, the strategy enters our isolated Shadow Trading environment. The virtual ledger tracks hypothetical fills, mark-to-market P&L, and cash reserves without capital risk. The operator can pause or resume at any time. Finally, the synthesized Institutional Brief issues an evidence-backed HOLD/BUY rating with explicit risk scenarios. FinSight AI bridges generative AI and quantitative finance with uncompromising safety."*
+- **Key Actions**:
+  1. Show the virtual cash balance (\$100,000 baseline) and simulated order ledger.
+  2. Toggle the **"Pause Simulation"** and **"Resume Simulation"** operator kill-switch.
+  3. Conclude at the Institutional Recommendation banner.
 
 ---
 
-### Scene 7: Multimodal Vision & Voice AI Interface (13:30 – 15:00)
-**Click Path**: Click **"Vision AI"** $\rightarrow$ Click **"Voice AI"**
+## 3. High-Value Interview Q&A Talking Points
 
-- **Presenter Talking Point**:
-  > "Finally, we bring multimodal and hands-free interaction to the equity research desk. Analysts can upload a technical chart for instant VLM pattern breakdown, or interact using conversational voice commands."
-- **Actions to Perform**:
-  1. In Vision AI, click the sample candlestick chart and run analysis to view automated support/resistance detection and pattern classification.
-  2. In Voice AI, click **"Start Listening"**, speak or click sample query *"Summarize NVDA quarterly risk"*, and observe the voice transcription and audio synthesis playback.
-
----
-
-### Conclusion & Wrap-Up
-- **Presenter Closing**:
-  > "FinSight AI delivers an end-to-end blueprint for modern institutional FinTech: zero-credential resilience, strict regulatory safety, enterprise cloud readiness, and state-of-the-art AI engineering. Thank you."
+- **Q: Why LangGraph instead of simple autogen or chain-of-thought?**
+  - *Answer*: Financial workflows require explicit state machines, resumability after pauses, checkpointing, and conditional loops (e.g., retrying code generation if AST checks fail). LangGraph provides typed state graphs rather than uncontrolled probabilistic loops.
+- **Q: How do you prevent look-ahead bias in AI-generated strategies?**
+  - *Answer*: Two layers: first, our backtesting engine enforces strict chronological bar-by-bar iteration over temporal train/val/test splits (`shuffle=False`). Second, the QA Agent runs an adversarial perturbation check, perturbing future prices and asserting that past signals remain invariant.
+- **Q: What happens if external LLM providers experience an outage or rate limit?**
+  - *Answer*: The Multi-Provider Gateway features automated retries with exponential backoff, timeout caps, and instantaneous fallback to local Ollama or deterministic zero-credential `DemoProvider`.
