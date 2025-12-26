@@ -1,0 +1,95 @@
+# FinSight AI - Local Development & Setup Guide
+
+## 1. Quick Local Setup (< 5 Minutes)
+FinSight AI is built to run out-of-the-box on Windows, macOS, and Linux without external cloud dependencies or API keys.
+
+### 1.1 Prerequisites
+- **Python 3.12+**
+- **Node.js 20+** and **npm**
+- (Optional) **Ollama** for local offline LLM inference
+
+---
+
+## 2. Backend Setup
+```bash
+# 1. Navigate to project root
+cd finsight_ai
+
+# 2. Create and activate a Python virtual environment
+python -m venv .venv
+# On Windows:
+.\.venv\Scripts\activate
+# On macOS / Linux:
+# source .venv/bin/activate
+
+# 3. Install core dependencies
+pip install -r backend/requirements.txt
+
+# 4. Launch FastAPI development server
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+```
+- Interactive OpenAPI Docs: `http://localhost:8000/docs`
+- Health check: `http://localhost:8000/health`
+
+---
+
+## 3. Frontend Setup
+```bash
+# In a new terminal window
+cd frontend
+
+# 1. Install dependencies
+npm install
+
+# 2. Run local Vite development server
+npm run dev
+```
+- Access application UI: `http://localhost:5173`
+
+---
+
+## 4. Zero-Credential Demo Mode vs Local LLM (Ollama)
+
+### 4.1 Zero-Credential Mode (Default)
+When no API keys are set, FinSight AI operates in zero-credential demonstration mode:
+- **Market Data**: Parquet-cached analytical datasets (`backend/app/data/pipeline.py`) with reproducible geometric Brownian motion synthesis for `AAPL`, `MSFT`, and `NVDA`.
+- **LLM Gateway**: `DemoProvider` generates structured, verifiable financial analyses, SEC citations, and candidate strategy code with zero network latency or external costs.
+
+### 4.2 Local Offline LLM with Ollama
+For private, air-gapped on-device LLM inference:
+1. Install and run [Ollama](https://ollama.ai/):
+   ```bash
+   ollama run llama3.2
+   ```
+2. Set the environment variable in `.env`:
+   ```env
+   DEFAULT_LLM_PROVIDER=ollama
+   OLLAMA_BASE_URL=http://localhost:11434
+   OLLAMA_MODEL=llama3.2
+   ```
+FinSight AI's `OllamaProvider` (`backend/app/providers/manager.py`) automatically routes research and code generation tasks to your local model with exponential backoff and timeout fallbacks.
+
+---
+
+## 5. Running Automated Verification Suites
+
+### 5.1 Backend Pytest Suite
+Run the 36 automated tests across workflow orchestration, AST sandbox, backtesting, RAG, and memory:
+```bash
+# Windows
+.\.venv\Scripts\pytest.exe tests/backend/
+
+# macOS / Linux
+pytest tests/backend/
+```
+
+### 5.2 Frontend Vitest & TypeScript Verification
+```bash
+cd frontend
+
+# Run unit tests
+npm test
+
+# Run TypeScript type check and production build
+npm run build
+```
