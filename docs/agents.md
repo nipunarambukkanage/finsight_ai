@@ -118,3 +118,32 @@ data: {"ticker": "AAPL", "report_markdown": "# Institutional Equity Research Rep
 All generated research runs are assigned a unique deterministic `run_id`.
 - **Markdown Export**: Direct markdown string with LaTeX mathematical equations.
 - **JSON Export**: Complete telemetry record including raw stage inputs, calculated outputs, and intermediate metrics for integration into quantitative execution management systems (EMS).
+
+---
+
+## 5. LangGraph Stateful Research & Strategy Workflow
+
+In addition to the analytical research pipeline, FinSight AI incorporates an institutional LangGraph StateGraph (`backend/app/orchestration/graph.py`) coordinating specialized role-based agents into an end-to-end trading decision-support loop:
+
+```mermaid
+graph TD
+    Data[1. Market Data Snapshot] --> RAG[2. SEC Evidence Grounding]
+    RAG --> Spec[3. Strategy Specification Formulation]
+    Spec --> Dev[4. Developer Agent Code Generation]
+    Dev --> QA{5. QA Agent AST & Bias Audit}
+    QA -->|Violations Detected / Retry Limit Unmet| Dev
+    QA -->|Passed All Invariants| Backtest[6. Deterministic Backtesting Engine]
+    Backtest --> Gate{7. Human-in-the-Loop Approval Gate}
+    Gate -->|Paused: WAITING_APPROVAL| Human[Operator Reviews Diff & Signs SHA-256]
+    Human -->|Resume /api/v1/workflows/{id}/resume| Shadow[8. Virtual Shadow Simulation]
+    Shadow --> Brief[9. Institutional Recommendation Brief]
+```
+
+### Specialized Logical Agents:
+1. **Research Planner & Evidence Agent**: Retrieves Parquet market snapshots and semantic SEC 10-K evidence.
+2. **Strategy Specification Agent**: Formulates formal hypotheses with indicator bounds and risk limits.
+3. **Developer Agent**: Synthesizes executable Python strategy functions conforming strictly to `generate_signals(df)`.
+4. **QA Agent**: Enforces Abstract Syntax Tree (AST) import whitelists, runs sandbox unit tests, and conducts look-ahead perturbation checks.
+5. **Backtesting Engine**: Executes non-anticipative bar-by-bar backtests with basis-point slippage and fee accounting.
+6. **Approval & Shadow Agents**: Cryptographically binds human operator approvals and tracks virtual simulation ledgers with zero live broker order capability.
+
