@@ -22,15 +22,18 @@
 
 | Domain | Capability | Implementation Highlights |
 | :--- | :--- | :--- |
-| **Generative AI & LLMs** | Multi-Provider Orchestration | Unified `LLMProviderInterface` supporting OpenAI (`gpt-4o`), Anthropic Claude 3.5 Sonnet, AWS Bedrock, Hugging Face, and deterministic zero-credential fallback. |
-| **Retrieval-Augmented Generation (RAG)** | Verifiable SEC Filing Intelligence | Chunk-level semantic retrieval across 10-K, 10-Q, and 8-K filings with interactive in-line citations (`[Doc: ..., Page ...]`), cosine reranking, and citation drawer inspection. |
-| **Autonomous AI Agents** | 8-Stage Equity Research Agent | Orchestrated research pipeline with real-time Server-Sent Events (SSE) telemetry, synthesizing a 14-section institutional report with Markdown & JSON export. |
+| **LangGraph Autonomous Workflow** | Stateful Research & Strategy Pipeline | StateGraph coordinating specialized agents (Market Data, SEC RAG, Strategy Spec, Dev Agent, QA Agent, Backtesting, Approval Gate, Shadow Simulation) with checkpointing, failure retries, and pause/resume. |
+| **Generative AI & LLMs** | Multi-Provider Orchestration | Unified `LLMProviderInterface` supporting OpenAI (`gpt-4o`), Anthropic Claude 3.5 Sonnet, AWS Bedrock, Ollama (local offline), and deterministic zero-credential fallback. |
+| **Strategy Development & QA Sandbox** | AST Code Analysis & Adversarial QA | Developer Agent generating candidate Python code; QA Agent enforcing AST module whitelisting, restricted subprocess isolation, invariant bounds, and look-ahead bias perturbation tests. |
+| **Deterministic Backtesting** | Reproducible Simulation Engine | Chronological train/val/test temporal partitions, non-anticipative bar-by-bar execution, 5.0 bps slippage, fee accounting, trade ledger, equity curve, and anomaly diagnostics. |
+| **Shadow Trading & Approval Gate** | Virtual Simulation Environment | Cryptographic SHA-256 human approval gate with separation of duties; isolated virtual portfolio with simulated fills and operator emergency pause/resume. Strictly zero real-money order execution. |
+| **Persistent Memory Architecture** | Cross-Run Vector Memory | Isolated tenant memory with secret sanitization (redacting API keys/passwords), SHA-256 content deduplication, version lineage, and PostgreSQL/pgvector compatibility. |
+| **Retrieval-Augmented Generation (RAG)** | Verifiable SEC Filing Intelligence | Chunk-level semantic retrieval across 10-K, 10-Q, and 8-K filings with prompt-injection sanitization, interactive in-line citations (`[Doc: ..., Page ...]`), cosine reranking, and citation drawer inspection. |
 | **Financial Sentiment** | FinBERT Financial NLP | Domain-specialized sentiment scoring (`ProsusAI/finbert`) with Loughran-McDonald lexicon fallback, entity sentiment extraction, and 30-day sentiment trajectories. |
 | **Quantitative Analytics** | Institutional Risk & Technicals | Annualized Volatility, Sharpe, Sortino, Max Drawdown, Beta, Correlation Matrix, Historical & Parametric Value-at-Risk (95% & 99% VaR), CVaR, RSI, MACD, Bollinger Bands. |
 | **Responsible Machine Learning** | Directional Equity Prediction | Strict chronological train/test splitting (`shuffle=False`), point-in-time feature engineering (eliminating look-ahead bias), Logistic Regression, Random Forest, Gradient Boosting. |
-| **Multimodal Vision** | Financial Chart Inspection | Vision-Language Model analysis of candlestick patterns, support/resistance levels, trendline breaks, and volume moving average crossovers. |
-| **Voice AI** | Speech-to-Text & Institutional Audio | Browser-native W3C Web Speech API integration, zero-latency transcription, and conversational audio synthesis. |
-| **Institutional UX** | Bloomberg-Inspired Interface | React 19 + TypeScript + Vite, custom HTML5 Canvas OHLCV charting, glassmorphism, responsive data density, zero non-functional controls. |
+| **Multimodal Vision & Voice AI** | Financial Chart Inspection & Voice | Vision-Language Model analysis of candlestick patterns, support/resistance levels, trendline breaks, and browser-native Speech-to-Text / Audio Briefings. |
+| **Institutional UX** | Bloomberg-Inspired Interface | React 19 + TypeScript + Vite, custom HTML5 Canvas OHLCV charting, glassmorphism, responsive data density, visual 7-tab Workflow Hub, zero non-functional controls. |
 
 ---
 
@@ -182,15 +185,15 @@ REDIS_URL=redis://localhost:6379/0
 
 ## 6. Testing & Verification
 
-The platform maintains extensive unit and integration test suites for both backend and frontend:
+The platform maintains extensive unit, integration, and security test suites for both backend and frontend:
 
 ### Backend Test Suite (Pytest)
 ```bash
-pytest --cov=backend/app --cov-report=term-missing tests/backend/
+pytest tests/backend/
 ```
 **Results**:
-- 19 passed automated tests.
-- 77% overall statement test coverage across all quantitative, RAG, and ML engine modules.
+- **36 passed automated tests** (100% pass rate in 21.10s).
+- Comprehensive test coverage across LangGraph stateful orchestration, AST static security sandbox, QA look-ahead bias perturbation, deterministic backtesting, slippage and fee friction, shadow paper trading, persistent memory sanitization/deduplication, prompt injection defense, and quantitative risk engines.
 - Zero deprecation warnings (`datetime.now(timezone.utc)` standard enforced).
 
 ### Frontend Test Suite (Vitest)
@@ -199,15 +202,15 @@ cd frontend
 npm test
 ```
 **Results**:
-- 3/3 passed component tests verifying DisclaimerBanner rendering, DonutChart SVG path calculations, and CorrelationHeatmap cell rendering.
+- **4/4 passed component test suites** in 3.68s verifying Workflow Hub rendering, stage progression, regulatory disclaimer banners, DonutChart SVG math, and CorrelationHeatmap cell mapping.
 
-### Production Production Build
+### Production Build Verification
 ```bash
 cd frontend
 npm run build
 ```
-- Type-checked with zero TypeScript compilation errors.
-- Optimized bundle generated in `frontend/dist/`.
+- Type-checked with **zero TypeScript compilation errors**.
+- Optimized production bundle generated in 1.19s (`frontend/dist/`).
 
 ---
 
@@ -226,13 +229,19 @@ See [docs/aws-architecture.md](docs/aws-architecture.md) for full cloud configur
 
 ## 8. Documentation Sitemap
 
-- [docs/architecture.md](docs/architecture.md): High-level system architecture and data flows.
-- [docs/ai-architecture.md](docs/ai-architecture.md): Multi-provider LLM abstraction, FinBERT sentiment, and VLM design.
+- [docs/architecture.md](docs/architecture.md): High-level system architecture, microservices, and data flows.
+- [docs/agents.md](docs/agents.md): LangGraph stateful orchestration, 8-stage research agent, and SSE streaming protocol.
+- [docs/memory.md](docs/memory.md): Persistent memory architecture, secret sanitization, and pgvector compatibility.
+- [docs/backtesting.md](docs/backtesting.md): Deterministic backtesting engine, slippage/fee friction, and look-ahead bias prevention.
+- [docs/shadow-trading.md](docs/shadow-trading.md): Simulation-only shadow paper trading, virtual portfolio, and human approval gates.
+- [docs/security.md](docs/security.md): Threat modeling, AST code execution sandbox, prompt injection defense, and RBAC.
+- [docs/local-development.md](docs/local-development.md): Zero-credential local setup, Ollama air-gapped LLM, and test runners.
+- [docs/demo-script.md](docs/demo-script.md): 10-minute executive and interview demonstration script.
+- [docs/ai-architecture.md](docs/ai-architecture.md): Multi-provider LLM gateway, FinBERT sentiment, and VLM design.
 - [docs/rag.md](docs/rag.md): SEC filing RAG retrieval, chunking, and verifiable citation grounding.
-- [docs/agents.md](docs/agents.md): 8-Stage Autonomous Research Agent execution and SSE streaming protocol.
 - [docs/ml-methodology.md](docs/ml-methodology.md): Responsible time-series ML, temporal splits, and avoidance of look-ahead bias.
 - [docs/aws-architecture.md](docs/aws-architecture.md): Enterprise AWS Terraform infrastructure specification.
-- [docs/demo-script.md](docs/demo-script.md): 12-15 minute live executive demonstration script.
+- [docs/implementation-status.md](docs/implementation-status.md): Complete baseline and post-upgrade implementation audit.
 - [SECURITY.md](SECURITY.md): Enterprise security architecture, redacting filters, and vulnerability disclosure.
 - [AGENTS.md](AGENTS.md): Autonomous agent guardrails and development guidelines.
 
