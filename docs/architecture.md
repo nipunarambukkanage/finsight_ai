@@ -10,13 +10,20 @@ graph TD
 
     subgraph Backend Core Services
         AuthService[Auth & Demo Token Service]
-        MarketService[Market Data Service]
+        MarketService[Market Data & Parquet Pipeline]
         QuantEngine[Quantitative Analytics Engine]
         MLEngine[Time-Series ML Engine]
         SentimentService[Hugging Face Sentiment Engine]
         DocIntelService[Document Intelligence & Diff Service]
-        RAGEngine[LangChain RAG Engine]
+        RAGEngine[LangChain RAG Engine & Injection Filter]
         AgentEngine[Multi-Stage Research Agent]
+        WorkflowEngine[LangGraph StateMachine Engine]
+        StrategyDev[Developer Agent & AST Sandbox]
+        QAAgent[QA Perturbation & Invariant Engine]
+        BacktestEngine[Deterministic Backtesting Engine]
+        ApprovalService[Human Approval Gate Service]
+        ShadowEngine[Shadow Paper Simulation Engine]
+        MemoryService[Persistent Memory & Vector Store]
         VoiceService[Voice AI Service]
         VisionService[Multimodal VLM Service]
     end
@@ -29,12 +36,17 @@ graph TD
     API --> DocIntelService
     API --> RAGEngine
     API --> AgentEngine
+    API --> WorkflowEngine
+    API --> MemoryService
+    API --> ApprovalService
+    API --> ShadowEngine
     API --> VoiceService
     API --> VisionService
 
     subgraph Multi-Provider AI Abstraction
         ProviderManager[LLM Provider Manager]
         DemoProv[DemoProvider - Zero Credentials]
+        OllamaProv[OllamaProvider - Local Air-Gapped]
         OpenAIProv[OpenAI GPT-4o Provider]
         AnthropicProv[Anthropic Claude 3.5 Provider]
         HFProv[Hugging Face Model Provider]
@@ -43,7 +55,9 @@ graph TD
 
     RAGEngine --> ProviderManager
     AgentEngine --> ProviderManager
+    WorkflowEngine --> ProviderManager
     ProviderManager --> DemoProv
+    ProviderManager --> OllamaProv
     ProviderManager --> OpenAIProv
     ProviderManager --> AnthropicProv
     ProviderManager --> HFProv
