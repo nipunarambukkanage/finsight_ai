@@ -53,6 +53,47 @@ These screenshots were captured from the running local Docker demo. They show th
   </tr>
 </table>
 
+### Explore the research workspaces
+
+The workbench keeps the path from a question to a decision visible. Each view
+shows the evidence, model boundary, and deterministic calculations that support
+the result, so a reviewer can move from a high-level brief to the underlying
+workflow in a few clicks.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/assistant.jpg" alt="FinSight AI research assistant workspace" width="100%">
+      <strong>AI Research Assistant</strong><br>
+      <em>Context-aware prompts, filing retrieval, and evidence-safe answers.</em>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/research-agent.jpg" alt="FinSight AI multi-stage research agent workspace" width="100%">
+      <strong>Research Agent</strong><br>
+      <em>Eight analytical stages with an observable execution trace.</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/sentiment.jpg" alt="FinSight AI financial sentiment workspace" width="100%">
+      <strong>Financial Sentiment</strong><br>
+      <em>FinBERT classification, distribution, and earnings progression.</em>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/analytics-lab.jpg" alt="FinSight AI quantitative analytics laboratory" width="100%">
+      <strong>Quantitative Analytics Lab</strong><br>
+      <em>Volatility, drawdown, VaR, expected shortfall, and correlations.</em>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <img src="docs/screenshots/technology-showcase.jpg" alt="FinSight AI technology showcase" width="100%">
+      <strong>Technology Showcase</strong><br>
+      <em>Generative AI, retrieval, autonomous workflows, and quantitative engineering in one view.</em>
+    </td>
+  </tr>
+</table>
+
 > **Try the same demo locally:** run `docker compose up -d --build`, then open [localhost:5173](http://localhost:5173). The API and interactive documentation are available at [localhost:18000/docs](http://localhost:18000/docs).
 
 ---
