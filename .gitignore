@@ -61,3 +61,6 @@ data/telemetry.jsonl
 docs/video-walkthrough-guide.pdf
 docs/video-walkthrough-guide.html
 docs/video-walkthrough-guide-preview.png
+
+frontend/playwright-report/
+frontend/test-results/

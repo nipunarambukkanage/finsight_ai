@@ -90,6 +90,18 @@ jobs:
           cd frontend
           npm run build
 
+      - name: Install Playwright Chromium
+        run: |
+          cd frontend
+          npx playwright install --with-deps chromium
+
+      - name: Run Playwright End-to-End Checks
+        env:
+          PLAYWRIGHT_START_SERVER: "1"
+        run: |
+          cd frontend
+          npm run test:e2e
+
   docker-validation:
     name: Docker Compose Syntax & Configuration Check
     runs-on: ubuntu-latest

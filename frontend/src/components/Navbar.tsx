@@ -100,12 +100,12 @@ export const Navbar: React.FC<NavbarProps> = ({ stocks = [], theme, onToggleThem
 
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div className="badge badge-cyan" id="demo-mode-badge" title="Zero-credential institutional demo mode enabled">
+          <div className="badge badge-cyan" id="demo-mode-badge" data-testid="demo-mode-badge" title="Zero-credential institutional demo mode enabled">
             <Cpu size={12} />
             <span>Demo AI Mode Active</span>
           </div>
 
-          <div className="badge badge-emerald" id="system-latency-badge">
+          <div className="badge badge-emerald" id="system-latency-badge" data-testid="system-latency-badge">
             <Activity size={12} />
             <span>Latency: 28ms</span>
           </div>

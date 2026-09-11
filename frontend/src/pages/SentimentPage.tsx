@@ -75,6 +75,7 @@ export const SentimentPage: React.FC = () => {
         <form onSubmit={handleAnalyze}>
           <textarea
             id="sentiment-input-textarea"
+            aria-label="Financial commentary"
             className="input-text"
             rows={3}
             placeholder="Enter earnings call commentary, analyst report note, or financial headline..."
