@@ -25,6 +25,9 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
 COPY backend/ /app/backend/
+COPY task1_financial/ /app/task1_financial/
+COPY task2_genai/ /app/task2_genai/
+COPY task3_agentic/ /app/task3_agentic/
 COPY pytest.ini /app/
 
 RUN mkdir -p /app/data/uploads /app/data/vector_store /app/data/sample_reports

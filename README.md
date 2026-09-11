@@ -171,8 +171,8 @@ To run the complete stack including PostgreSQL with `pgvector` and Redis:
 docker compose up --build
 ```
 - Frontend: `http://localhost` (or `http://localhost:5173`)
-- Backend API: `http://localhost:8000`
-- API Docs: `http://localhost:8000/docs`
+- Backend API: `http://localhost:18000`
+- API Docs: `http://localhost:18000/docs`
 
 ---
 

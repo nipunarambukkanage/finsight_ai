@@ -46,6 +46,11 @@ npm run dev
 ```
 - Access application UI: `http://localhost:5173`
 
+When the full Docker Compose stack is used and port 8000 is occupied by another
+local service, the backend is exposed on `http://localhost:18000` and the
+frontend is built to use that address. The PostgreSQL container is exposed on
+host port `55432`.
+
 ---
 
 ## 4. Zero-Credential Demo Mode vs Local LLM (Ollama)
