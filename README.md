@@ -20,7 +20,7 @@ assessment domains:
 - `task2_genai/`: filing-risk extraction contracts, teacher dataset generation and source-disjoint splits, QLoRA training configuration, merged-model flow, and held-out evaluation.
 - `task3_agentic/`: five authorized tools, observation-driven routing, typed two-agent critique handoff, persistent cache, and `agent_trace.jsonl`.
 
-See [docs/assessment-evidence.md](docs/assessment-evidence.md), [CITATIONS.md](CITATIONS.md), and [REFLECTION.md](REFLECTION.md). Run the assessment paths from [docs/runbook.md](docs/runbook.md) and follow the final [submission runbook](docs/submission-runbook.md). The [five-minute video walkthrough guide](docs/video-walkthrough-guide.pdf) includes a simple narration script. Live provider and Colab outputs must be regenerated before submission; fixture outputs are explicitly labelled and are not live evidence.
+See [docs/assessment-evidence.md](docs/assessment-evidence.md), [CITATIONS.md](CITATIONS.md), and [REFLECTION.md](REFLECTION.md). Run the assessment paths from [docs/runbook.md](docs/runbook.md) and follow the final [submission runbook](docs/submission-runbook.md). The local five-minute video guide is intentionally excluded from version control. Live provider and Colab outputs must be regenerated before submission; fixture outputs are explicitly labelled and are not live evidence.
 
 ---
 
