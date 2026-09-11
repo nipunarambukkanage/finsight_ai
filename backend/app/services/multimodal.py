@@ -40,7 +40,7 @@ class MultimodalVisionService:
                 "**2. Forward Guidance:** Management maintains optimistic full-year operating margin targets between 42% and 44%.\n"
                 "**3. Capital Expenditure:** Infrastructure investments are projected to increase by 15% to support capacity expansion."
             )
-        else:  # stock_chart
+        else:
             features = [
                 "Identified primary ascending trend channel with higher lows",
                 "Detected key horizontal support level at $218.50 and resistance at $242.00",

@@ -49,7 +49,7 @@ export const DocumentsPage: React.FC = () => {
     <div id="documents-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -65,7 +65,7 @@ export const DocumentsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Upload Button */}
+
         <div>
           <button
             id="upload-filing-btn"
@@ -85,7 +85,7 @@ export const DocumentsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Document Library Cards */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Indexed SEC Filing Universe</h2>
 
@@ -123,7 +123,7 @@ export const DocumentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Compare Reports Workspace */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -133,7 +133,7 @@ export const DocumentsPage: React.FC = () => {
           <span className="badge badge-emerald">Diff Audit Ready</span>
         </div>
 
-        {/* Selection Dropdowns */}
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '240px' }}>
             <label style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', fontWeight: 600 }}>
@@ -182,7 +182,7 @@ export const DocumentsPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Diff Output */}
+
         {comparison && (
           <div id="comparison-results-container" style={{ marginTop: '20px' }}>
             <div className="grid-12" style={{ marginBottom: '20px' }}>
@@ -205,7 +205,7 @@ export const DocumentsPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Structured Table Diff */}
+
             <div style={{ backgroundColor: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', padding: '16px', marginBottom: '20px' }}>
               <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '12px' }}>
                 Key Quantitative KPI Variations
@@ -238,7 +238,7 @@ export const DocumentsPage: React.FC = () => {
               </table>
             </div>
 
-            {/* Risk Factor Additions */}
+
             <div style={{ backgroundColor: 'var(--bg-surface)', borderRadius: 'var(--radius-md)', padding: '16px' }}>
               <div style={{ fontSize: '13px', fontWeight: 700, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <AlertTriangle size={16} color="var(--accent-amber)" />

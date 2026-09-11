@@ -117,9 +117,9 @@ export const AssistantPage: React.FC = () => {
     <div id="ai-assistant-page" className="page-wrapper" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - var(--navbar-height) - 40px)' }}>
       <DisclaimerBanner />
 
-      {/* Main Chat Layout */}
+
       <div style={{ display: 'flex', gap: '20px', flex: 1, minHeight: 0 }}>
-        {/* Chat Stream Panel */}
+
         <div
           className="glass-card"
           style={{
@@ -130,7 +130,7 @@ export const AssistantPage: React.FC = () => {
             padding: '20px'
           }}
         >
-          {/* Header */}
+
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '14px', marginBottom: '14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '28px', height: '28px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -144,7 +144,7 @@ export const AssistantPage: React.FC = () => {
             <span className="badge badge-cyan">Zero Hallucination Mode</span>
           </div>
 
-          {/* Messages Container */}
+
           <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px', paddingRight: '8px' }}>
             {messages.map((m) => (
               <div
@@ -173,7 +173,7 @@ export const AssistantPage: React.FC = () => {
                     lineHeight: 1.6
                   }}
                 >
-                  {/* Metadata header if assistant */}
+
                   {m.sender === 'assistant' && m.toolsCalled && m.toolsCalled.length > 0 && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px', flexWrap: 'wrap' }}>
                       <span className="badge badge-purple" style={{ fontSize: '10px' }}>
@@ -189,7 +189,7 @@ export const AssistantPage: React.FC = () => {
 
                   <div style={{ whiteSpace: 'pre-line' }}>{m.content}</div>
 
-                  {/* Citations Pills */}
+
                   {m.citations && m.citations.length > 0 && (
                     <div style={{ marginTop: '12px', borderTop: '1px solid var(--border-subtle)', paddingTop: '10px' }}>
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '6px' }}>
@@ -225,7 +225,7 @@ export const AssistantPage: React.FC = () => {
               </div>
             ))}
 
-            {/* Workflow status indicator */}
+
             {workflowStatus && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--accent-cyan)', fontSize: '12px', padding: '8px 12px', background: 'rgba(6, 182, 212, 0.08)', borderRadius: 'var(--radius-md)', width: 'fit-content' }}>
                 <Activity size={14} className="animate-pulse-glow" />
@@ -236,7 +236,7 @@ export const AssistantPage: React.FC = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Prompts Bar */}
+
           <div style={{ display: 'flex', gap: '8px', padding: '12px 0', overflowX: 'auto', scrollbarWidth: 'none' }}>
             {[
               'Compare Apple and Microsoft valuation',
@@ -255,7 +255,7 @@ export const AssistantPage: React.FC = () => {
             ))}
           </div>
 
-          {/* Input Box */}
+
           <form
             onSubmit={(e) => { e.preventDefault(); handleSend(); }}
             style={{ display: 'flex', gap: '10px', marginTop: '6px' }}
@@ -280,7 +280,7 @@ export const AssistantPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Citations & Evidence Drawer (Right Side) */}
+
         {selectedCitation && (
           <div
             className="glass-card"

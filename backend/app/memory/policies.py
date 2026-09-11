@@ -28,7 +28,7 @@ class MemoryPolicyEnforcer:
                     "SECURITY POLICY VIOLATION: Memory storage rejected because content contains sensitive credentials, API keys, or secrets."
                 )
 
-        # Check metadata keys
+
         meta_str = str(metadata).lower()
         for pat in cls.FORBIDDEN_PATTERNS:
             if pat.search(meta_str):
@@ -39,11 +39,11 @@ class MemoryPolicyEnforcer:
         return content
 
     @staticmethod
-    def verify_tenant_access(request_tenant: str, item_tenant: str, request_user: str, item_user: str) -> bool:
+    def verify_tenant_access(request_tenant: str, item_tenant: str, request_user: str, item_user: str, scope: str = "workflow") -> bool:
         """Enforces tenant isolation and user privacy boundaries."""
         if request_tenant != item_tenant:
             return False
-        # If user is not admin, ensure user isolation
-        if request_user != item_user and request_user != "admin":
+
+        if request_user != item_user and request_user != "admin" and scope != "tenant":
             return False
         return True

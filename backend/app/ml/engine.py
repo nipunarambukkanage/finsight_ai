@@ -9,7 +9,7 @@ Demonstrates responsible time-series machine learning methodology for financial 
 - Prominent educational notices on financial non-stationarity and overfitting risks
 """
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Tuple
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
@@ -39,37 +39,41 @@ class MachineLearningStockEngine:
         close = df["close"]
         vol = df["volume"]
 
-        # Lagged Returns
+
         df["ret_1d"] = close.pct_change(1)
         df["ret_3d"] = close.pct_change(3)
         df["ret_5d"] = close.pct_change(5)
         df["ret_10d"] = close.pct_change(10)
 
-        # Rolling Volatilities
+
         df["vol_10d"] = df["ret_1d"].rolling(window=10).std() * np.sqrt(252)
         df["vol_20d"] = df["ret_1d"].rolling(window=20).std() * np.sqrt(252)
 
-        # Moving Average Ratios
+
         sma_20 = close.rolling(window=20).mean()
         sma_50 = close.rolling(window=50).mean()
         df["ratio_price_sma20"] = close / sma_20
         df["ratio_sma20_sma50"] = sma_20 / sma_50
 
-        # Volume ratio
+
         vol_ma10 = vol.rolling(window=10).mean()
         df["volume_ratio"] = vol / (vol_ma10 + 1e-9)
 
-        # Forward return target (future horizon_days return > 0)
-        future_return = (close.shift(-horizon_days) - close) / close
-        df["target_direction"] = (future_return > 0).astype(int)
 
-        # Drop NaNs created by rolling windows and future shift
+        future_return = (close.shift(-horizon_days) - close) / close
+
+
+        df["target_direction"] = np.where(
+            future_return.notna(), (future_return > 0).astype(int), np.nan
+        )
+
+
         features_list = [
             "ret_1d", "ret_3d", "ret_5d", "ret_10d",
             "vol_10d", "vol_20d",
             "ratio_price_sma20", "ratio_sma20_sma50", "volume_ratio"
         ]
-        valid_df = df.dropna().reset_index(drop=True)
+        valid_df = df.dropna(subset=[*features_list, "target_direction"]).reset_index(drop=True)
         X = valid_df[features_list]
         y = valid_df["target_direction"]
 
@@ -90,19 +94,22 @@ class MachineLearningStockEngine:
         if n_samples < 40:
             raise ValueError(f"Insufficient historical bars ({n_samples}) for robust time-series ML.")
 
-        # Temporal split (No random shuffle to prevent look-ahead bias)
-        split_idx = int(n_samples * (1.0 - test_size))
-        X_train, X_test = X.iloc[:split_idx], X.iloc[split_idx:]
-        y_train, y_test = y.iloc[:split_idx], y.iloc[split_idx:]
 
-        # Standardize features using training distribution statistics
+        split_idx = int(n_samples * (1.0 - test_size))
+
+
+        train_end = max(1, split_idx - horizon_days)
+        X_train, X_test = X.iloc[:train_end], X.iloc[split_idx:]
+        y_train, y_test = y.iloc[:train_end], y.iloc[split_idx:]
+
+
         scaler = StandardScaler()
         X_train_scaled = scaler.fit_transform(X_train)
         X_test_scaled = scaler.transform(X_test)
 
         feature_names = list(X.columns)
 
-        # Select model
+
         if model_type == "logistic_regression":
             model = LogisticRegression(C=0.5, penalty="l2", max_iter=1000, random_state=42)
             model.fit(X_train_scaled, y_train)
@@ -111,16 +118,16 @@ class MachineLearningStockEngine:
             model = GradientBoostingClassifier(n_estimators=60, learning_rate=0.05, max_depth=3, random_state=42)
             model.fit(X_train, y_train)
             importances = {name: round(float(imp), 4) for name, imp in zip(feature_names, model.feature_importances_)}
-        else:  # random_forest
+        else:
             model = RandomForestClassifier(n_estimators=100, max_depth=4, min_samples_split=5, random_state=42)
             model.fit(X_train, y_train)
             importances = {name: round(float(imp), 4) for name, imp in zip(feature_names, model.feature_importances_)}
 
-        # Evaluate on out-of-sample test split
+
         X_eval = X_test_scaled if model_type == "logistic_regression" else X_test
         y_pred = model.predict(X_eval)
-        
-        # Predicted probabilities for ROC-AUC
+
+
         try:
             y_proba = model.predict_proba(X_eval)[:, 1]
             roc_auc = round(float(roc_auc_score(y_test, y_proba)), 3)

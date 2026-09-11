@@ -7,14 +7,14 @@ Provides an enterprise provider abstraction supporting:
 - HuggingFaceProvider (Inference API / Local Transformers)
 - BedrockProvider (AWS Bedrock runtime)
 
-Features automatic graceful failover to DemoProvider if keys are absent or services are unreachable.
+The DemoProvider is available only under the explicitly enabled demo profile;
+production provider failures remain errors instead of becoming fabricated evidence.
 """
 
 from typing import List, Dict, Any, Optional, AsyncGenerator, Tuple
 import json
 import re
 import asyncio
-import numpy as np
 from backend.app.config import settings
 from backend.app.core.logging import logger
 
@@ -42,29 +42,13 @@ class DemoProvider(BaseLLMProvider):
     provider_name: str = "DEMO"
 
     def _generate_synthetic_embeddings(self, texts: List[str], dim: int = 384) -> List[List[float]]:
-        """Generate deterministic normalized embeddings based on text hash for zero-credential RAG."""
-        embeddings = []
-        for text in texts:
-            # Deterministic pseudo-vector seeded by text content and words
-            words = text.lower().split()
-            seed = sum(ord(c) * (i + 1) for i, c in enumerate(text[:80])) % (2**31 - 1)
-            rng = np.random.RandomState(seed)
-            vec = rng.normal(0, 1, dim)
-            
-            # Boost specific dimensions for financial keywords to ensure semantic relevance
-            if "services" in words or "margin" in words:
-                vec[10:20] += 2.5
-            if "blackwell" in words or "datacenter" in words or "h100" in words:
-                vec[20:30] += 2.5
-            if "azure" in words or "cloud" in words or "copilot" in words:
-                vec[30:40] += 2.5
-            if "risk" in words or "export" in words or "antitrust" in words:
-                vec[40:50] += 2.5
+        """Compatibility name that delegates to the governed embedding service.
 
-            norm = np.linalg.norm(vec)
-            vec = (vec / norm).tolist() if norm > 0 else vec.tolist()
-            embeddings.append(vec)
-        return embeddings
+        The service uses Sentence Transformers when provisioned and only allows
+        deterministic vectors when the explicit demo policy is enabled.
+        """
+        from backend.app.rag.embeddings import embedding_service
+        return embedding_service.embed(texts)
 
     async def embed(self, texts: List[str]) -> List[List[float]]:
         return self._generate_synthetic_embeddings(texts)
@@ -106,7 +90,7 @@ class DemoProvider(BaseLLMProvider):
                 "4. **AI Infrastructure ROI:** High capital expenditure in AI clusters must demonstrate translating monetization over the 12-24 month horizon."
             )
 
-        # Grounded RAG synthesis if context provided
+
         if context:
             return (
                 f"Based on the retrieved financial documents:\n\n{context[:600]}...\n\n"
@@ -125,7 +109,7 @@ class DemoProvider(BaseLLMProvider):
         chunks = full_text.split(" ")
         for chunk in chunks:
             yield chunk + " "
-            await asyncio.sleep(0.02)  # Realistic token streaming pacing
+            await asyncio.sleep(0.02)
 
 class OllamaProvider(BaseLLMProvider):
     """Local Ollama provider for lightweight tasks: extraction, formatting, summarization."""
@@ -145,9 +129,15 @@ class OllamaProvider(BaseLLMProvider):
                 if resp.status_code == 200:
                     data = resp.json()
                     return data.get("response", "")
+                if not settings.DEMO_MODE:
+                    raise RuntimeError(f"Ollama returned HTTP {resp.status_code}")
         except Exception as e:
-            logger.warning(f"Ollama local endpoint unavailable ({e}). Gracefully falling back to DemoProvider.")
-        # Fallback
+            logger.warning(f"Ollama local endpoint unavailable ({e}).")
+            if not settings.DEMO_MODE:
+                raise RuntimeError("Ollama provider is unavailable and DEMO_MODE is disabled") from e
+
+
+
         return await DemoProvider().generate(prompt, system_prompt, context, **kwargs)
 
     async def embed(self, texts: List[str]) -> List[List[float]]:
@@ -165,6 +155,8 @@ class LLMProviderManager:
         name = (provider_name or self.current_provider_name).upper()
         if name == "OLLAMA":
             return self.ollama_provider
+        if name == "DEMO" and not settings.DEMO_MODE:
+            raise RuntimeError("DemoProvider is disabled when DEMO_MODE is false; use the application model gateway")
         return self.demo_provider
 
     async def execute_with_telemetry(
@@ -176,7 +168,8 @@ class LLMProviderManager:
         prompt_version: str = "v1.0",
         expected_schema: Optional[Any] = None,
         max_retries: int = 2,
-        timeout_sec: float = 15.0
+        timeout_sec: float = 15.0,
+        allow_demo_fallback: Optional[bool] = None,
     ) -> Tuple[str, Dict[str, Any]]:
         """
         Executes generation with timeout, retry, structured-output validation, and latency recording.
@@ -189,7 +182,7 @@ class LLMProviderManager:
 
         for attempt in range(max_retries + 1):
             try:
-                # Execution with timeout
+
                 res = await asyncio.wait_for(
                     provider.generate(prompt, system_prompt=system_prompt, context=context),
                     timeout=timeout_sec
@@ -211,8 +204,18 @@ class LLMProviderManager:
                 logger.warning(f"Provider {active_provider_name} attempt {attempt+1} failed ({e}). Retrying...")
                 await asyncio.sleep(0.1 * (2 ** attempt))
 
-        # Fallback to DemoProvider
-        logger.info(f"All retries failed for {active_provider_name}. Activating DemoProvider fallback.")
+        permitted_demo = settings.DEMO_MODE if allow_demo_fallback is None else allow_demo_fallback
+        if not permitted_demo:
+            telemetry = {
+                "provider": active_provider_name,
+                "prompt_version": prompt_version,
+                "latency_ms": int((time.time() - start_time) * 1000),
+                "status": "error",
+                "error": last_err,
+            }
+            self.telemetry_records.append(telemetry)
+            raise RuntimeError(f"{active_provider_name} failed after {max_retries + 1} attempts; demo fallback is disabled")
+        logger.info(f"All retries failed for {active_provider_name}. Activating explicitly enabled DemoProvider fallback.")
         res = await self.demo_provider.generate(prompt, system_prompt=system_prompt, context=context)
         latency_ms = int((time.time() - start_time) * 1000)
         telemetry = {

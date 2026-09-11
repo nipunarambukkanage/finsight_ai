@@ -107,7 +107,7 @@ export const StockWorkspacePage: React.FC = () => {
     <div id="stock-workspace-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Ticker Selector Header */}
+
       <div
         style={{
           display: 'flex',
@@ -135,7 +135,7 @@ export const StockWorkspacePage: React.FC = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+
         <div style={{ display: 'flex', gap: '12px' }}>
           <button
             id="agent-investigate-btn"
@@ -156,7 +156,7 @@ export const StockWorkspacePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Price & Primary Multiples Banner */}
+
       <div className="grid-12" style={{ marginBottom: '24px' }}>
         <div className="col-3 glass-card">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600 }}>CURRENT PRICE</div>
@@ -210,7 +210,7 @@ export const StockWorkspacePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Interactive Price Chart Section */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -218,7 +218,7 @@ export const StockWorkspacePage: React.FC = () => {
             <span className="badge badge-emerald">Interactive Canvas</span>
           </div>
 
-          {/* Timeframe Selectors */}
+
           <div style={{ display: 'flex', gap: '6px' }}>
             {[
               { label: '1M', days: 22 },
@@ -244,7 +244,7 @@ export const StockWorkspacePage: React.FC = () => {
         />
       </div>
 
-      {/* Tabs: Technicals vs Fundamentals vs Risk Statistics */}
+
       <div className="glass-card">
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', marginBottom: '20px', gap: '20px' }}>
           {[

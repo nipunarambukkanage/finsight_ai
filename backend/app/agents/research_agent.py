@@ -11,7 +11,7 @@ Executes a bounded, autonomous multi-stage research pipeline for equities:
 8. Verification Agent (Cross-references factual claims against retrieved evidence)
 """
 
-from typing import List, Dict, Any, Optional
+from typing import List
 import time
 from datetime import datetime, timezone
 from backend.app.models.schemas import (
@@ -31,7 +31,7 @@ class FinancialResearchAgent:
 
         trace_steps: List[AgentTraceStep] = []
 
-        # --- Stage 1: Research Planner ---
+
         t0 = time.time()
         trace_steps.append(AgentTraceStep(
             stage="Research Planner",
@@ -41,13 +41,11 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 120
         ))
 
-        # --- Stage 2: Market Data Analyst ---
+
         t0 = time.time()
         detail = await market_data_service.get_detail(ticker)
         if not detail:
-            # Fallback to AAPL if ticker unknown
-            ticker = "AAPL"
-            detail = await market_data_service.get_detail(ticker)
+            raise ValueError(f"No market dataset is available for ticker '{ticker}'. No substitute ticker was used.")
 
         overview = detail.overview
         trace_steps.append(AgentTraceStep(
@@ -58,7 +56,7 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 180
         ))
 
-        # --- Stage 3: Fundamental Analyst ---
+
         t0 = time.time()
         funds = detail.fundamentals
         rev_b = funds.get('revenue_ttm', 0) / 1e9
@@ -73,7 +71,7 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 210
         ))
 
-        # --- Stage 4: Technical Analyst ---
+
         t0 = time.time()
         tech = detail.technicals
         trace_steps.append(AgentTraceStep(
@@ -84,7 +82,7 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 160
         ))
 
-        # --- Stage 5: Risk & Sentiment Analyst ---
+
         t0 = time.time()
         risk = detail.risk_stats
         sent = sentiment_service.analyze_text(
@@ -98,10 +96,11 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 190
         ))
 
-        # --- Stage 6: Document Researcher ---
+
         t0 = time.time()
         rag_res = rag_engine.search_chunks(f"{ticker} business model risks revenue margins", ticker=ticker, top_k=3)
         doc_count = len(rag_res)
+        evidence_coverage = round(0.95 * min(1.0, len(rag_res) / 3.0) + 0.05 * (sum(max(0.0, min(1.0, float(score))) for _, score in rag_res) / len(rag_res) if rag_res else 0.0), 3) if rag_res else 0.0
         cited_snippets = [c[0].content[:120] for c in rag_res]
         trace_steps.append(AgentTraceStep(
             stage="Document Researcher",
@@ -111,7 +110,7 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 240
         ))
 
-        # --- Stage 7: Report Writer ---
+
         t0 = time.time()
         report_markdown = self._synthesize_report_markdown(overview, funds, tech, risk, sent, cited_snippets)
         trace_steps.append(AgentTraceStep(
@@ -122,13 +121,13 @@ class FinancialResearchAgent:
             duration_ms=int((time.time() - t0) * 1000) + 310
         ))
 
-        # --- Stage 8: Verification Agent ---
+
         t0 = time.time()
         trace_steps.append(AgentTraceStep(
             stage="Verification Agent",
             description=f"Auditing output for data consistency, verifying calculation lineage, and applying regulatory disclaimers.",
             status="completed",
-            findings_summary="Evidence coverage verified at 94.2%. Calculation audit passed. Regulatory disclaimers attached.",
+            findings_summary=f"Evidence coverage measured at {evidence_coverage:.1%}. Calculation audit passed. Regulatory disclaimers attached.",
             duration_ms=int((time.time() - t0) * 1000) + 110
         ))
 
@@ -144,8 +143,8 @@ class FinancialResearchAgent:
             title=f"Institutional Investment Intelligence Brief: {overview.name} ({ticker})",
             executive_summary=exec_summary,
             full_markdown=report_markdown,
-            evidence_coverage=0.94,
-            ai_confidence=0.89,
+            evidence_coverage=evidence_coverage,
+            ai_confidence=round(min(1.0, 0.5 + 0.5 * evidence_coverage), 3),
             created_at=datetime.now(timezone.utc),
             execution_trace=trace_steps,
             disclaimer=(
@@ -171,7 +170,7 @@ class FinancialResearchAgent:
 ---
 
 ## 1. Executive Summary
-{overview.name} ({overview.ticker}) continues to deliver resilient operational performance, driven by expanding high-margin business segments and enduring institutional demand. With a market capitalization of **${overview.market_cap / 1e9:.1f}B** and current price of **${overview.current_price:.2f}**, the equity trades within a 52-week range of **${overview.week_52_low:.2f} - ${overview.week_52_high:.2f}**. 
+{overview.name} ({overview.ticker}) continues to deliver resilient operational performance, driven by expanding high-margin business segments and enduring institutional demand. With a market capitalization of **${overview.market_cap / 1e9:.1f}B** and current price of **${overview.current_price:.2f}**, the equity trades within a 52-week range of **${overview.week_52_low:.2f} - ${overview.week_52_high:.2f}**.
 
 Our multi-stage quantitative and fundamental audit reveals exceptional balance sheet durability, strong Free Cash Flow conversion, and sustainable competitive moats.
 

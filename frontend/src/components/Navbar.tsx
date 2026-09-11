@@ -44,7 +44,7 @@ export const Navbar: React.FC<NavbarProps> = ({ stocks = [], theme, onToggleThem
         flexDirection: 'column'
       }}
     >
-      {/* Ticker Tape */}
+
       <div className="ticker-tape">
         {tickerItems.map((stk) => {
           const isPos = stk.change_percent >= 0;
@@ -65,7 +65,7 @@ export const Navbar: React.FC<NavbarProps> = ({ stocks = [], theme, onToggleThem
         })}
       </div>
 
-      {/* Main Bar */}
+
       <div
         style={{
           height: 'var(--navbar-height)',
@@ -75,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ stocks = [], theme, onToggleThem
           padding: '0 28px'
         }}
       >
-        {/* Search */}
+
         <form onSubmit={handleSearchSubmit} style={{ position: 'relative', width: '380px' }}>
           <Search
             size={16}
@@ -98,7 +98,7 @@ export const Navbar: React.FC<NavbarProps> = ({ stocks = [], theme, onToggleThem
           />
         </form>
 
-        {/* Status Indicators & Profile */}
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div className="badge badge-cyan" id="demo-mode-badge" title="Zero-credential institutional demo mode enabled">
             <Cpu size={12} />

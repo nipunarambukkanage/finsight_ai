@@ -38,7 +38,7 @@ export const MultimodalPage: React.FC = () => {
     <div id="multimodal-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -53,9 +53,9 @@ export const MultimodalPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Input Selection & Upload Panel */}
+
       <div className="grid-12" style={{ marginBottom: '24px' }}>
-        {/* Left: Input Selection */}
+
         <div className="col-6 glass-card">
           <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Select Target Document / Chart</h2>
 
@@ -105,7 +105,7 @@ export const MultimodalPage: React.FC = () => {
           </form>
         </div>
 
-        {/* Right: Visual Artifact Preview */}
+
         <div className="col-6 glass-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', backgroundColor: 'var(--bg-surface)' }}>
           <div
             style={{
@@ -136,7 +136,7 @@ export const MultimodalPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Analysis Output */}
+
       {result && (
         <div className="glass-card" id="multimodal-result-container">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '14px', marginBottom: '16px' }}>

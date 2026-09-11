@@ -13,7 +13,7 @@ import { DisclaimerBanner } from '../components/DisclaimerBanner';
 export const AnalyticsLabPage: React.FC = () => {
   const [selectedTickers, setSelectedTickers] = useState<string[]>(['AAPL', 'MSFT', 'NVDA', 'GOOGL']);
 
-  // Static high-fidelity sample matrix for the quantitative lab
+
   const sampleMatrix = [
     [1.00, 0.62, 0.54, 0.58],
     [0.62, 1.00, 0.68, 0.71],
@@ -32,7 +32,7 @@ export const AnalyticsLabPage: React.FC = () => {
     <div id="analytics-lab-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -47,7 +47,7 @@ export const AnalyticsLabPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Risk Metrics Comparison Table */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Quantitative Risk & Tail-Loss Audit</h2>
 
@@ -81,7 +81,7 @@ export const AnalyticsLabPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Correlation Matrix Heatmap */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div>
@@ -96,7 +96,7 @@ export const AnalyticsLabPage: React.FC = () => {
         <CorrelationHeatmap tickers={selectedTickers} matrix={sampleMatrix} />
       </div>
 
-      {/* Formula & Methodological Transparency Note */}
+
       <div className="glass-card">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
           <Info size={16} color="var(--accent-cyan)" />

@@ -50,8 +50,9 @@ npm run dev
 
 ## 4. Zero-Credential Demo Mode vs Local LLM (Ollama)
 
-### 4.1 Zero-Credential Mode (Default)
-When no API keys are set, FinSight AI operates in zero-credential demonstration mode:
+### 4.1 Explicit Demo Mode
+Set `DEMO_MODE=True` for a zero-credential demonstration. The mode is visible in
+API metadata and output provenance; production should set `DEMO_MODE=False`:
 - **Market Data**: Parquet-cached analytical datasets (`backend/app/data/pipeline.py`) with reproducible geometric Brownian motion synthesis for `AAPL`, `MSFT`, and `NVDA`.
 - **LLM Gateway**: `DemoProvider` generates structured, verifiable financial analyses, SEC citations, and candidate strategy code with zero network latency or external costs.
 
@@ -67,14 +68,14 @@ For private, air-gapped on-device LLM inference:
    OLLAMA_BASE_URL=http://localhost:11434
    OLLAMA_MODEL=llama3.2
    ```
-FinSight AI's `OllamaProvider` (`backend/app/providers/manager.py`) automatically routes research and code generation tasks to your local model with exponential backoff and timeout fallbacks.
+FinSight AI's `OllamaProvider` (`backend/app/providers/manager.py`) routes research and code-generation tasks to your local model with bounded retries and timeouts. If the provider is unavailable, production mode returns an explicit error; demo fallback remains opt-in through `DEMO_MODE`.
 
 ---
 
 ## 5. Running Automated Verification Suites
 
 ### 5.1 Backend Pytest Suite
-Run the 36 automated tests across workflow orchestration, AST sandbox, backtesting, RAG, and memory:
+Run the backend test suite across workflow orchestration, AST sandbox, backtesting, RAG, memory, and assessment contracts:
 ```bash
 # Windows
 .\.venv\Scripts\pytest.exe tests/backend/

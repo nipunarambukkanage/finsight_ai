@@ -59,8 +59,17 @@ class ApprovalService:
         rec = self._approvals.get(approval_id)
         if not rec:
             raise ValueError(f"Approval record '{approval_id}' not found.")
+        if rec.decision != "PENDING":
+            raise ValueError(f"Approval record '{approval_id}' is already finalized as {rec.decision}.")
 
-        # Separation of duties: Creator cannot approve own artifact
+
+
+        try:
+            decision = decision if isinstance(decision, ApprovalDecision) else ApprovalDecision(str(decision).upper())
+        except ValueError as exc:
+            raise ValueError(f"Unsupported approval decision: {decision}") from exc
+
+
         PermissionEnforcer.check_separation_of_duties(rec.requested_by, reviewed_by)
 
         rec.decision = decision.value

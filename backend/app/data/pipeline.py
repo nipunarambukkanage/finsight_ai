@@ -3,7 +3,7 @@ FinSight AI - Reproducible Market Data Pipeline
 Pipeline: Source Data -> Raw -> Cleaned -> Analytical Parquet -> Research & Backtesting.
 """
 
-from typing import List, Dict, Any, Optional, Iterator
+from typing import List, Optional, Iterator
 import os
 import uuid
 from datetime import datetime, timezone
@@ -35,7 +35,7 @@ class MarketDataPipeline:
         - Eliminates duplicates
         - Sorts chronologically
         - Validates positive OHLC values
-        - Forward-fills missing intermediate values
+        - Quarantines malformed bars without inventing missing observations
         """
         if not records:
             return pd.DataFrame()
@@ -43,43 +43,57 @@ class MarketDataPipeline:
         snap_id = snapshot_id or f"snap-{uuid.uuid4().hex[:8]}"
 
         rows = []
+        rejected = 0
         for r in records:
-            # Timestamp normalization
+
             try:
                 if isinstance(r.timestamp, str):
                     ts = pd.to_datetime(r.timestamp, utc=True)
                 else:
                     ts = pd.to_datetime(r.timestamp, unit='s', utc=True)
+                if pd.isna(ts):
+                    rejected += 1
+                    continue
             except Exception:
+                rejected += 1
                 continue
 
+            try:
+                open_p, high_p, low_p, close_p, volume = map(float, (r.open, r.high, r.low, r.close, r.volume))
+                if not np.isfinite([open_p, high_p, low_p, close_p, volume]).all() or min(open_p, high_p, low_p, close_p) <= 0 or volume < 0:
+                    rejected += 1
+                    continue
+                if high_p < max(open_p, close_p) or low_p > min(open_p, close_p):
+                    rejected += 1
+                    continue
+            except (TypeError, ValueError):
+                rejected += 1
+                continue
             rows.append({
-                "ticker": r.ticker.upper(),
-                "timestamp": ts,
-                "open": float(r.open),
-                "high": float(max(r.high, r.open, r.close)),
-                "low": float(min(r.low, r.open, r.close)),
-                "close": float(r.close),
-                "volume": float(max(0.0, r.volume)),
-                "provenance": provenance.value,
-                "snapshot_id": snap_id
+                "ticker": r.ticker.upper(), "timestamp": ts,
+                "open": open_p, "high": high_p, "low": low_p, "close": close_p,
+                "volume": volume, "provenance": provenance.value, "snapshot_id": snap_id
             })
 
         df = pd.DataFrame(rows)
         if df.empty:
             return df
+        if rejected:
+            logger.warning("Quarantined %d malformed market bars", rejected)
 
-        # Deduplication on (ticker, timestamp)
+
         df = df.drop_duplicates(subset=["ticker", "timestamp"])
 
-        # Sort chronologically
+
         df = df.sort_values(by="timestamp").reset_index(drop=True)
 
-        # Handle missing or invalid values
-        df[["open", "high", "low", "close"]] = df[["open", "high", "low", "close"]].ffill().bfill()
+
+
+
+        df = df.dropna(subset=["open", "high", "low", "close"]).reset_index(drop=True)
         df["volume"] = df["volume"].fillna(0.0)
 
-        # Enforce OHLC consistency
+
         df["high"] = df[["open", "high", "low", "close"]].max(axis=1)
         df["low"] = df[["open", "high", "low", "close"]].min(axis=1)
 
@@ -127,7 +141,7 @@ class MarketDataPipeline:
             if file_path.exists():
                 return pd.read_parquet(file_path, engine="pyarrow")
 
-        # Fallback to latest snapshot in directory
+
         parquet_files = sorted(ticker_dir.glob("*.parquet"), key=os.path.getmtime, reverse=True)
         if parquet_files:
             return pd.read_parquet(parquet_files[0], engine="pyarrow")

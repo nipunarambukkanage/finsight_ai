@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import declarative_base
+import importlib
 from backend.app.config import settings
 from backend.app.core.logging import logger
 
@@ -31,7 +32,6 @@ async def get_db():
 
 async def init_db():
     async with engine.begin() as conn:
-        # Import models so they are registered with metadata
-        from backend.app.models import entities  # noqa
+        importlib.import_module("backend.app.models.entities")
         await conn.run_sync(Base.metadata.create_all)
     logger.info("Database initialized successfully.")

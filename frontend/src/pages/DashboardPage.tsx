@@ -47,7 +47,7 @@ export const DashboardPage: React.FC = () => {
     <div id="dashboard-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header Banner */}
+
       <div
         style={{
           display: 'flex',
@@ -86,7 +86,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Key Macro & Market Pulse Cards */}
+
       <div className="grid-12" style={{ marginBottom: '24px' }}>
         <div className="col-3 glass-card">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
@@ -137,9 +137,9 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Grid: AI Market Briefing & Watchlist */}
+
       <div className="grid-12" style={{ marginBottom: '24px' }}>
-        {/* Left Column: AI Market Briefing */}
+
         <div className="col-8 glass-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -193,7 +193,7 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Action Prompt suggestions */}
+
           <div style={{ marginTop: '20px' }}>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '8px' }}>
               QUICK AI INVESTIGATIONS:
@@ -218,7 +218,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column: Watchlist */}
+
         <div className="col-4 glass-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 700 }}>Core Coverage Watchlist</h2>
@@ -284,7 +284,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Row: Recent SEC Filings in RAG Knowledge Base */}
+
       <div className="glass-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

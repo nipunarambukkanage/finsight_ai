@@ -3,7 +3,6 @@ FinSight AI - LangGraph Workflow Node Functions
 Executes atomic agent actions and transforms WorkflowState.
 """
 
-from typing import Dict, Any, Optional
 import uuid
 import numpy as np
 import pandas as pd
@@ -21,6 +20,7 @@ from backend.app.rag.engine import rag_engine
 from backend.app.memory.service import memory_service, MemoryCategory
 from backend.app.strategy.developer import developer_agent
 from backend.app.strategy.qa_agent import qa_agent
+from backend.app.strategy.sandbox import strategy_sandbox
 from backend.app.backtesting.engine import backtest_engine
 from backend.app.approvals.service import approval_service
 from backend.app.shadow.service import shadow_trading_service
@@ -33,7 +33,7 @@ async def market_data_node(state: WorkflowState) -> WorkflowState:
     state.stage = "market_data"
     state.status = "RUNNING"
 
-    # Ensure analytical Parquet dataset exists
+
     meta = market_data_pipeline.generate_synthetic_historical_dataset(ticker=ticker, days=252)
     state.log_transition("market_data_node", "completed", {
         "ticker": ticker,
@@ -48,7 +48,7 @@ async def research_node(state: WorkflowState) -> WorkflowState:
     ticker = state.ticker.upper()
     state.stage = "research"
 
-    # Semantic search across SEC chunks
+
     chunks = rag_engine.search_chunks(f"{ticker} operating margins revenue growth capital allocation risks", ticker=ticker, top_k=3)
     sources = [
         {
@@ -64,7 +64,7 @@ async def research_node(state: WorkflowState) -> WorkflowState:
         for c in chunks
     ]
 
-    # Recall cross-workflow institutional memories
+
     prior_memories = memory_service.get_workflow_context(ticker)
 
     research_id = f"res-{uuid.uuid4().hex[:8]}"
@@ -138,7 +138,7 @@ async def qa_node(state: WorkflowState) -> WorkflowState:
     if not state.candidate_code:
         raise ValueError("Cannot execute QA checks without candidate code.")
 
-    # Load sample historical analytical data for testing
+
     df = market_data_pipeline.load_analytical_parquet(state.ticker)
     if df.empty:
         meta = market_data_pipeline.generate_synthetic_historical_dataset(state.ticker, days=100)
@@ -151,7 +151,7 @@ async def qa_node(state: WorkflowState) -> WorkflowState:
         state.status = "FAILED"
         state.error_message = f"QA Validation Failed: {'; '.join(qa_res.details)}"
         logger.warning(f"Strategy {state.candidate_code.strategy_id} rejected by QA Agent.")
-        # Store rejection memory for future workflow awareness
+
         memory_service.store_memory(
             tenant_id="default_tenant",
             user_id="demo_analyst",
@@ -180,11 +180,12 @@ async def backtest_node(state: WorkflowState) -> WorkflowState:
         meta = market_data_pipeline.generate_synthetic_historical_dataset(state.ticker, days=252)
         df = market_data_pipeline.load_analytical_parquet(state.ticker, meta.snapshot_id)
 
-    # Safely generate strategy signals
-    local_scope: Dict[str, Any] = {}
-    exec(state.candidate_code.source_code, {"np": np, "pd": pd, "numpy": np, "pandas": pd, "__builtins__": __builtins__}, local_scope)
-    strat = local_scope["CandidateStrategy"]()
-    signals = strat.generate_signals(df)
+
+
+    signal_ok, signals_or_error = strategy_sandbox.run_signals_in_restricted_subprocess(state.candidate_code.source_code, df)
+    if not signal_ok:
+        raise ValueError(f"Sandbox signal execution failed: {signals_or_error}")
+    signals = np.asarray(signals_or_error)
 
     bt_res = backtest_engine.run_backtest(
         df=df,
@@ -236,7 +237,7 @@ async def shadow_trading_node(state: WorkflowState) -> WorkflowState:
     """Stage 8: Simulation-only shadow trading execution with hypothetical orders and fills."""
     state.stage = "shadow_trading"
 
-    # Enforce approval check
+
     if not state.approval_record or state.approval_record.decision != "APPROVE":
         state.status = "REJECTED"
         state.error_message = "Shadow trading cannot be activated without explicit Human Operator approval."
@@ -250,7 +251,7 @@ async def shadow_trading_node(state: WorkflowState) -> WorkflowState:
         approved_by=state.approval_record.reviewed_by or "operator"
     )
 
-    # Simulate immediate incoming bar ticks to populate hypothetical order ledger
+
     df = market_data_pipeline.load_analytical_parquet(state.ticker)
     if not df.empty:
         recent_bars = df.tail(5)
@@ -316,7 +317,7 @@ async def recommendation_node(state: WorkflowState) -> WorkflowState:
     state.recommendation = rec_output
     state.status = "COMPLETED"
 
-    # Persist successful strategy lesson into memory
+
     memory_service.store_memory(
         tenant_id="default_tenant",
         user_id="demo_analyst",

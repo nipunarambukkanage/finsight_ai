@@ -1,0 +1,7 @@
+-r backend/requirements.txt
+opentelemetry-api>=1.28.0
+opentelemetry-sdk>=1.28.0
+opentelemetry-instrumentation-fastapi>=0.49b0
+langfuse>=2.50.0
+prometheus-client>=0.21.0
+

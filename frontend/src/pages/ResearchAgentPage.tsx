@@ -48,7 +48,7 @@ export const ResearchAgentPage: React.FC = () => {
     setReport(null);
     setCurrentStageIdx(0);
 
-    // Progressive visual trace simulation
+
     const updatedTrace: AgentTraceStep[] = [...activeTrace].map(t => ({
       ...t,
       status: 'pending' as const
@@ -102,7 +102,7 @@ export const ResearchAgentPage: React.FC = () => {
     <div id="research-agent-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -118,7 +118,7 @@ export const ResearchAgentPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Ticker Selector & Launch Control */}
+
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <select
             id="agent-ticker-select"
@@ -153,7 +153,7 @@ export const ResearchAgentPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 8-Stage Execution Trace Stepper */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -207,7 +207,7 @@ export const ResearchAgentPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Generated Report Output Section */}
+
       {report && (
         <div className="glass-card" id="generated-report-container">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '16px', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
@@ -239,7 +239,7 @@ export const ResearchAgentPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Rendered Markdown Report */}
+
           <div
             style={{
               padding: '24px',

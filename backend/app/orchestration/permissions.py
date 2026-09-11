@@ -25,11 +25,11 @@ class AgentAction(str, Enum):
     APPROVE_CODE = "approve_code"
     RUN_BACKTEST = "run_backtest"
     PROMOTE_TO_SHADOW = "promote_to_shadow"
-    EXECUTE_REAL_TRADE = "execute_real_trade"  # STRICTLY DISALLOWED FOR ALL ROLES
+    EXECUTE_REAL_TRADE = "execute_real_trade"
     ROUTE_WORKFLOW = "route_workflow"
-    BYPASS_GATES = "bypass_gates"  # STRICTLY DISALLOWED
+    BYPASS_GATES = "bypass_gates"
 
-# Strict permission matrix
+
 ROLE_PERMISSIONS: Dict[AgentRole, Set[AgentAction]] = {
     AgentRole.RESEARCH_AGENT: {
         AgentAction.READ_MARKET_DATA,
@@ -62,11 +62,11 @@ class PermissionEnforcer:
 
     @staticmethod
     def check_permission(role: AgentRole, action: AgentAction) -> bool:
-        # Invariant 1: Real trade execution is impossible and forbidden across all roles
+
         if action == AgentAction.EXECUTE_REAL_TRADE:
             raise PermissionError("CRITICAL SAFETY VIOLATION: Execution of real-money trades is strictly prohibited.")
 
-        # Invariant 2: Supervisor or agents cannot bypass deterministic validation gates
+
         if action == AgentAction.BYPASS_GATES:
             raise PermissionError("GATE VIOLATION: Deterministic validation gates cannot be bypassed.")
 

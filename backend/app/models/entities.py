@@ -1,5 +1,4 @@
 from datetime import datetime, timezone
-import json
 from typing import Optional, List
 from sqlalchemy import (
     Column, Integer, String, Float, DateTime, Text, ForeignKey, Boolean, JSON
@@ -51,7 +50,7 @@ class PriceHistory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     stock_id = Column(Integer, ForeignKey("stocks.id", ondelete="CASCADE"), nullable=False, index=True)
-    date = Column(String(10), nullable=False, index=True)  # YYYY-MM-DD
+    date = Column(String(10), nullable=False, index=True)
     open = Column(Float, nullable=False)
     high = Column(Float, nullable=False)
     low = Column(Float, nullable=False)
@@ -113,7 +112,7 @@ class Document(Base):
     id = Column(Integer, primary_key=True, index=True)
     ticker = Column(String(10), nullable=True, index=True)
     title = Column(String(255), nullable=False)
-    doc_type = Column(String(50), nullable=False)  # 10-K, 10-Q, Earnings, Research
+    doc_type = Column(String(50), nullable=False)
     reporting_period = Column(String(50), nullable=True)
     year = Column(Integer, nullable=True)
     file_path = Column(String(500), nullable=False)
@@ -133,6 +132,9 @@ class DocumentChunk(Base):
     page_number = Column(Integer, nullable=True)
     token_count = Column(Integer, nullable=True)
     metadata_json = Column(JSON, nullable=True)
+
+
+    embedding = Column(JSON, nullable=True)
 
     document = relationship("Document", back_populates="chunks")
 
@@ -156,7 +158,7 @@ class SentimentResult(Base):
     ticker = Column(String(10), nullable=True, index=True)
     text = Column(Text, nullable=False)
     source = Column(String(100), default="analyst_news")
-    label = Column(String(20), nullable=False)  # Positive, Neutral, Negative
+    label = Column(String(20), nullable=False)
     score = Column(Float, nullable=False)
     key_phrases = Column(JSON, nullable=True)
     explanation = Column(Text, nullable=True)
@@ -168,8 +170,8 @@ class MLExperiment(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String(255), nullable=False)
     ticker = Column(String(10), nullable=False)
-    task_type = Column(String(50), nullable=False)  # directional, volatility, regime
-    model_type = Column(String(50), nullable=False)  # logistic_regression, random_forest, gradient_boosting
+    task_type = Column(String(50), nullable=False)
+    model_type = Column(String(50), nullable=False)
     accuracy = Column(Float, nullable=True)
     precision = Column(Float, nullable=True)
     recall = Column(Float, nullable=True)
@@ -187,4 +189,79 @@ class AuditEvent(Base):
     event_type = Column(String(100), nullable=False)
     user_id = Column(String(100), default="demo_analyst")
     details = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class WorkflowRun(Base):
+    """Durable graph run metadata; checkpoints are owned by LangGraph."""
+    __tablename__ = "workflow_runs"
+
+    run_id = Column(String(100), primary_key=True)
+    tenant_id = Column(String(100), nullable=False, index=True, default="default_tenant")
+    ticker = Column(String(10), nullable=False, index=True)
+    workflow_kind = Column(String(80), nullable=False)
+    status = Column(String(40), nullable=False, index=True, default="QUEUED")
+    idempotency_key = Column(String(255), unique=True, nullable=True)
+    lease_owner = Column(String(120), nullable=True)
+    lease_expires_at = Column(DateTime(timezone=True), nullable=True)
+    payload = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow, onupdate=utcnow)
+
+
+class WorkflowEvent(Base):
+    __tablename__ = "workflow_events"
+
+    id = Column(Integer, primary_key=True, index=True)
+    run_id = Column(String(100), ForeignKey("workflow_runs.run_id", ondelete="CASCADE"), nullable=False, index=True)
+    event_type = Column(String(100), nullable=False)
+    payload = Column(JSON, nullable=False, default=dict)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class OutboxEvent(Base):
+    """Transactional integration event awaiting Kafka or another sink."""
+    __tablename__ = "outbox_events"
+
+    event_id = Column(String(100), primary_key=True)
+    run_id = Column(String(100), nullable=False, index=True)
+    topic = Column(String(160), nullable=False, index=True)
+    payload = Column(JSON, nullable=False)
+    status = Column(String(30), nullable=False, default="PENDING", index=True)
+    attempts = Column(Integer, nullable=False, default=0)
+    available_at = Column(DateTime(timezone=True), nullable=False, default=utcnow)
+    published_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=utcnow)
+
+
+class MemoryRecord(Base):
+    __tablename__ = "memory_records"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(String(100), nullable=False, index=True)
+    owner_id = Column(String(100), nullable=False, index=True)
+    scope = Column(String(80), nullable=False, default="workflow")
+    category = Column(String(80), nullable=False)
+    content = Column(Text, nullable=False)
+    content_hash = Column(String(64), nullable=False, index=True)
+    metadata_json = Column(JSON, nullable=False, default=dict)
+    valid_from = Column(DateTime, default=utcnow)
+    valid_until = Column(DateTime, nullable=True)
+    supersedes_id = Column(Integer, nullable=True)
+    created_at = Column(DateTime, default=utcnow)
+
+
+class ModelRun(Base):
+    __tablename__ = "model_runs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    run_id = Column(String(100), nullable=False, index=True)
+    provider = Column(String(100), nullable=False)
+    model = Column(String(255), nullable=False)
+    prompt_version = Column(String(100), nullable=False)
+    input_tokens = Column(Integer, nullable=True)
+    output_tokens = Column(Integer, nullable=True)
+    latency_ms = Column(Float, nullable=True)
+    cost_usd = Column(Float, nullable=True)
+    status = Column(String(40), nullable=False)
     created_at = Column(DateTime, default=utcnow)

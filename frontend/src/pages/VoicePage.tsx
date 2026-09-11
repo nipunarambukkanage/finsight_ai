@@ -61,7 +61,7 @@ export const VoicePage: React.FC = () => {
     <div id="voice-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -76,7 +76,7 @@ export const VoicePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Microphone Interaction Center */}
+
       <div
         className="glass-card"
         style={{
@@ -131,7 +131,7 @@ export const VoicePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Generated Audio Briefing Output */}
+
       {briefing && (
         <div className="glass-card" id="voice-briefing-output-container">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-subtle)', paddingBottom: '14px', marginBottom: '16px', flexWrap: 'wrap', gap: '10px' }}>

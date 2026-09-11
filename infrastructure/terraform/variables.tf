@@ -20,5 +20,9 @@ variable "db_password" {
   type        = string
   description = "PostgreSQL RDS master password"
   sensitive   = true
-  default     = "FinSightSecureDBPass2025!"
+
+  validation {
+    condition     = length(var.db_password) >= 16
+    error_message = "db_password must be supplied explicitly and contain at least 16 characters."
+  }
 }

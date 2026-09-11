@@ -18,7 +18,7 @@ def test_memory_storage_and_deduplication():
     )
     assert item1.version == 1
 
-    # Store identical memory
+
     item2 = memory_service.store_memory(
         tenant_id="tenant_a",
         user_id="analyst_1",

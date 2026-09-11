@@ -1,7 +1,3 @@
-# ==============================================================================
-# FinSight AI - Frontend Production Dockerfile
-# Multi-stage Node.js build with lightweight Alpine Nginx server
-# ==============================================================================
 
 FROM node:24-alpine AS builder
 
@@ -13,7 +9,6 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-# Production Serving Stage
 FROM nginx:alpine AS runner
 
 COPY --from=builder /app/dist /usr/share/nginx/html

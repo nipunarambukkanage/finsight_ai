@@ -98,7 +98,7 @@ export const WorkflowPage: React.FC = () => {
     <div style={{ padding: '24px', maxWidth: '1400px', margin: '0 auto' }}>
       <DisclaimerBanner />
 
-      {/* Header Controls */}
+
       <div
         style={{
           display: 'flex',
@@ -181,7 +181,7 @@ export const WorkflowPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Visual Pipeline Progress */}
+
       <div
         style={{
           background: 'var(--bg-secondary)',
@@ -246,10 +246,10 @@ export const WorkflowPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Workflow Tabs */}
+
       {workflow && (
         <div>
-          {/* Navigation Bar */}
+
           <div
             style={{
               display: 'flex',
@@ -310,9 +310,9 @@ export const WorkflowPage: React.FC = () => {
             })}
           </div>
 
-          {/* Tab Content */}
+
           <div style={{ background: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)', padding: '24px' }}>
-            {/* Tab 1: Evidence */}
+
             {activeTab === 'evidence' && workflow.research_output && (
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -359,7 +359,7 @@ export const WorkflowPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 2: Strategy */}
+
             {activeTab === 'strategy' && workflow.strategy_spec && (
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -405,7 +405,7 @@ export const WorkflowPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 3: QA */}
+
             {activeTab === 'qa' && workflow.qa_results && (
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -453,7 +453,7 @@ export const WorkflowPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 4: Backtest */}
+
             {activeTab === 'backtest' && workflow.backtest_result && (
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -519,7 +519,7 @@ export const WorkflowPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 5: Approval */}
+
             {activeTab === 'approval' && workflow.approval_record && (
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -612,7 +612,7 @@ export const WorkflowPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 6: Shadow */}
+
             {activeTab === 'shadow' && workflow.shadow_result && (
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -701,7 +701,7 @@ export const WorkflowPage: React.FC = () => {
               </div>
             )}
 
-            {/* Tab 7: Audit */}
+
             {activeTab === 'audit' && (
               <div>
                 <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
@@ -739,7 +739,7 @@ export const WorkflowPage: React.FC = () => {
             )}
           </div>
 
-          {/* Final Institutional Recommendation Banner */}
+
           {workflow.recommendation && (
             <div
               style={{

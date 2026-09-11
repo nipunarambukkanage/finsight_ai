@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package finsight.events.v1;
+
+message EventEnvelope {
+  string schema_version = 1;
+  string event_id = 2;
+  string trace_id = 3;
+  string run_id = 4;
+  string event_type = 5;
+  string occurred_at = 6;
+  bytes payload_json = 7;
+}

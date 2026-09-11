@@ -17,7 +17,7 @@ from backend.app.models.schemas import SentimentResponse, SentimentDistribution
 
 class FinancialSentimentEngine:
 
-    # Financial Loughran-McDonald & Wall Street lexicon weights
+
     BULLISH_TERMS = {
         "outperform": 2.2, "growth": 1.5, "accelerate": 1.8, "beat": 2.0, "exceed": 1.8,
         "record": 1.6, "dividend": 1.2, "expansion": 1.4, "profitability": 1.7,
@@ -49,11 +49,11 @@ class FinancialSentimentEngine:
             self._hf_pipeline = pipeline(
                 "sentiment-analysis",
                 model="ProsusAI/finbert",
-                device=-1  # CPU
+                device=-1
             )
             self._hf_loaded = True
         except Exception:
-            # Fall back gracefully to high-precision domain lexicon
+
             self._hf_loaded = False
 
     def analyze_text(self, text: str, ticker: Optional[str] = None) -> SentimentResponse:
@@ -64,11 +64,11 @@ class FinancialSentimentEngine:
         cleaned = text.strip()
         lower_text = cleaned.lower()
 
-        # If HF FinBERT is loaded and available
+
         if self._hf_loaded and self._hf_pipeline is not None:
             try:
                 res = self._hf_pipeline(cleaned[:512])[0]
-                label = res["label"].capitalize()  # positive, negative, neutral -> Positive, Negative, Neutral
+                label = res["label"].capitalize()
                 score = round(float(res["score"]), 3)
                 key_phrases = self._extract_key_phrases(lower_text)
                 explanation = self._build_explanation(label, score, key_phrases)
@@ -81,9 +81,9 @@ class FinancialSentimentEngine:
                     model_used="HuggingFace / ProsusAI/finbert"
                 )
             except Exception:
-                pass  # Fall back to lexicon if inference fails
+                pass
 
-        # Domain Lexicon fallback
+
         bull_score = 0.0
         bear_score = 0.0
         matched_phrases = []

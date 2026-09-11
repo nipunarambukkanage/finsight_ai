@@ -37,7 +37,7 @@ export const MLLabPage: React.FC = () => {
     <div id="ml-lab-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -52,7 +52,7 @@ export const MLLabPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Warning Alert Banner */}
+
       <div
         style={{
           padding: '14px 18px',
@@ -73,7 +73,7 @@ export const MLLabPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Configuration Form */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Configure Pipeline Parameters</h2>
 
@@ -139,10 +139,10 @@ export const MLLabPage: React.FC = () => {
         </form>
       </div>
 
-      {/* ML Evaluation Output */}
+
       {metrics && (
         <div id="ml-results-container">
-          {/* Top Metric Cards */}
+
           <div className="grid-12" style={{ marginBottom: '24px' }}>
             <div className="col-3 glass-card">
               <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600 }}>OUT-OF-SAMPLE ACCURACY</div>
@@ -185,9 +185,9 @@ export const MLLabPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Confusion Matrix & Feature Importances */}
+
           <div className="grid-12" style={{ marginBottom: '24px' }}>
-            {/* Confusion Matrix */}
+
             <div className="col-6 glass-card">
               <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px' }}>Out-of-Sample Confusion Matrix</h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', textAlign: 'center' }}>
@@ -218,7 +218,7 @@ export const MLLabPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Feature Importances */}
+
             <div className="col-6 glass-card">
               <h3 style={{ fontSize: '15px', fontWeight: 700, marginBottom: '14px' }}>Feature Importance Hierarchy</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

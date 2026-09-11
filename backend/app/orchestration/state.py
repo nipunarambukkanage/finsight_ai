@@ -21,10 +21,11 @@ class WorkflowState(BaseModel):
     workflow_id: str
     run_id: str
     ticker: str
-    status: str = "PENDING"  # PENDING, RUNNING, WAITING_APPROVAL, APPROVED, REJECTED, COMPLETED, FAILED, PAUSED
+    owner_id: str = "demo_analyst"
+    status: str = "PENDING"
     stage: str = "init"
-    
-    # Typed Agent Output Artifacts
+
+
     research_output: Optional[ResearchOutput] = None
     strategy_spec: Optional[StrategySpecification] = None
     candidate_code: Optional[ImplementationOutput] = None
@@ -33,8 +34,8 @@ class WorkflowState(BaseModel):
     approval_record: Optional[ApprovalRecord] = None
     shadow_result: Optional[ShadowSimulationResult] = None
     recommendation: Optional[RecommendationOutput] = None
-    
-    # Audit Trail & Observability
+
+
     history: List[Dict[str, Any]] = Field(default_factory=list)
     retry_count: int = 0
     max_retries: int = 2

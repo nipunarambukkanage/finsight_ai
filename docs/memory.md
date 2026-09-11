@@ -42,9 +42,9 @@ The memory layer is designed with a pluggable interface supporting both full-sca
 1. **Production Engine (PostgreSQL + pgvector)**:
    - Uses native `vector(1536)` or `vector(384)` columns with `ivfflat` / `hnsw` indexes for sub-millisecond approximate nearest neighbor (ANN) cosine similarity search.
    - Relational ACID transactions guarantee that memory writes are atomically committed with strategy specifications.
-2. **Local Evaluation Engine (In-Memory / SQLite Fallback)**:
-   - In zero-credential local demo mode, vector similarity is computed deterministically via normalized NumPy cosine dot products (`A · B / (||A|| * ||B||)`).
-   - Zero external services required; runs out-of-the-box in CI and local developer machines.
+2. **Local Evaluation Engine (SQLite write-through adapter)**:
+   - `backend/app/memory/persistent.py` is the zero-configuration durable adapter. The service keeps a hot DTO cache but writes records, scopes, validity windows, hashes, and provenance to SQLite.
+   - In explicit demo mode, vector similarity may use deterministic vectors; production requires a provisioned Sentence Transformer and returns an uncertainty rather than fabricating embeddings.
 
 ---
 

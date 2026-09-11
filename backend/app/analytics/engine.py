@@ -97,7 +97,7 @@ class QuantitativeAnalyticsEngine:
         p = np.array(prices, dtype=np.float64)
         peak = np.maximum.accumulate(p)
         drawdowns = (p - peak) / peak
-        return float(np.min(drawdowns))  # Negative value representing max loss from peak
+        return float(np.min(drawdowns))
 
     @staticmethod
     def calculate_beta(asset_returns: np.ndarray, benchmark_returns: np.ndarray) -> float:
@@ -123,7 +123,7 @@ class QuantitativeAnalyticsEngine:
         if min_len < 2:
             size = len(tickers)
             return {"tickers": tickers, "matrix": np.eye(size).tolist()}
-        
+
         df = pd.DataFrame({t: returns_dict[t][-min_len:] for t in tickers if t in returns_dict})
         corr_matrix = df.corr().fillna(0.0).values.tolist()
         return {
@@ -140,14 +140,14 @@ class QuantitativeAnalyticsEngine:
         if len(returns) < 5:
             return 0.0
         if method == "historical":
-            # At 95% confidence, VaR is the 5th percentile loss
+
             percentile = (1.0 - confidence) * 100.0
             var_val = -np.percentile(returns, percentile)
             return float(max(0.0, var_val))
         elif method == "parametric":
             mean = np.mean(returns)
             std = np.std(returns, ddof=1)
-            # z-scores: 95% -> 1.64485, 99% -> 2.32635
+
             z = 1.64485 if abs(confidence - 0.95) < 0.01 else 2.32635
             var_val = -(mean - z * std)
             return float(max(0.0, var_val))
@@ -180,15 +180,15 @@ class QuantitativeAnalyticsEngine:
         delta = series.diff().dropna()
         gain = delta.clip(lower=0)
         loss = -delta.clip(upper=0)
-        
+
         avg_gain = gain.rolling(window=period, min_periods=period).mean()
         avg_loss = loss.rolling(window=period, min_periods=period).mean()
-        
-        # Smoothed Wilder average
+
+
         for i in range(period, len(gain)):
             avg_gain.iloc[i] = (avg_gain.iloc[i-1] * (period - 1) + gain.iloc[i]) / period
             avg_loss.iloc[i] = (avg_loss.iloc[i-1] * (period - 1) + loss.iloc[i]) / period
-            
+
         rs = avg_gain / avg_loss.replace(0, 1e-9)
         rsi = 100.0 - (100.0 / (1.0 + rs))
         last_val = rsi.iloc[-1]
@@ -207,7 +207,7 @@ class QuantitativeAnalyticsEngine:
         macd_line = ema_fast - ema_slow
         signal_line = macd_line.ewm(span=signal, adjust=False).mean()
         macd_hist = macd_line - signal_line
-        
+
         return {
             "macd": round(float(macd_line.iloc[-1]), 4),
             "macd_signal": round(float(signal_line.iloc[-1]), 4),
@@ -226,7 +226,7 @@ class QuantitativeAnalyticsEngine:
         std = s.rolling(window=period).std()
         upper = middle + (num_std * std)
         lower = middle - (num_std * std)
-        
+
         return {
             "bb_upper": round(float(upper.iloc[-1]), 2),
             "bb_middle": round(float(middle.iloc[-1]), 2),

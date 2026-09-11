@@ -25,7 +25,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Handle high DPI
+
     const dpr = window.devicePixelRatio || 1;
     const rect = canvas.getBoundingClientRect();
     canvas.width = rect.width * dpr;
@@ -40,7 +40,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
     ctx.clearRect(0, 0, w, h);
 
-    // Compute min / max
+
     let minP = Math.min(...prices.map(p => p.low));
     let maxP = Math.max(...prices.map(p => p.high));
     const padding = (maxP - minP) * 0.05;
@@ -53,7 +53,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
     const step = w / n;
     const barW = Math.max(1, step * 0.7);
 
-    // Draw horizontal grid lines
+
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 1;
     const gridLines = 5;
@@ -71,7 +71,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       ctx.fillText(`$${priceVal.toFixed(2)}`, w - 8, y - 4);
     }
 
-    // Draw Volume Bars
+
     prices.forEach((bar, i) => {
       const x = i * step + step / 2;
       const vHeight = (bar.volume / maxVol) * volH;
@@ -81,7 +81,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       ctx.fillRect(x - barW / 2, h - vHeight, barW, vHeight);
     });
 
-    // Draw Price Bars or Line
+
     if (chartType === 'line') {
       ctx.beginPath();
       prices.forEach((bar, i) => {
@@ -94,7 +94,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // Area gradient
+
       ctx.lineTo((n - 1) * step + step / 2, priceH);
       ctx.lineTo(step / 2, priceH);
       ctx.closePath();
@@ -104,7 +104,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
       ctx.fillStyle = grad;
       ctx.fill();
     } else {
-      // Candlestick mode
+
       prices.forEach((bar, i) => {
         const x = i * step + step / 2;
         const yO = priceH - ((bar.open - minP) / (maxP - minP)) * priceH;
@@ -117,20 +117,20 @@ export const PriceChart: React.FC<PriceChartProps> = ({
         ctx.fillStyle = isUp ? '#10b981' : '#f43f5e';
         ctx.lineWidth = 1;
 
-        // Wick
+
         ctx.beginPath();
         ctx.moveTo(x, yH);
         ctx.lineTo(x, yL);
         ctx.stroke();
 
-        // Body
+
         const topY = Math.min(yO, yC);
         const candleH = Math.max(2, Math.abs(yC - yO));
         ctx.fillRect(x - barW / 2, topY, barW, candleH);
       });
     }
 
-    // Draw SMA 20 Overlay
+
     if (showSMA && prices.length >= 20) {
       ctx.beginPath();
       for (let i = 19; i < prices.length; i++) {
@@ -164,7 +164,7 @@ export const PriceChart: React.FC<PriceChartProps> = ({
 
   return (
     <div style={{ position: 'relative', width: '100%' }}>
-      {/* Chart Controls & Active Bar Pill */}
+
       <div
         style={{
           display: 'flex',

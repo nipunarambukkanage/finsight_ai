@@ -16,7 +16,7 @@ class DataProvenance(str, Enum):
 
 class RawPriceRecord(BaseModel):
     ticker: str
-    timestamp: str  # Can be ISO, epoch, or formatted string
+    timestamp: str
     open: float
     high: float
     low: float

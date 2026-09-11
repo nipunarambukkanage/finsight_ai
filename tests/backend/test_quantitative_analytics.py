@@ -17,12 +17,12 @@ def test_cumulative_returns():
     assert pytest.approx(cum_returns[-1], 0.0001) == expected_final
 
 def test_annualized_volatility():
-    # Constant return has 0 volatility
+
     constant_returns = np.array([0.01, 0.01, 0.01, 0.01, 0.01])
     vol = QuantitativeAnalyticsEngine.calculate_annualized_volatility(constant_returns)
     assert vol == 0.0
 
-    # Random returns
+
     np.random.seed(42)
     returns = np.random.normal(0.001, 0.015, 252)
     vol = QuantitativeAnalyticsEngine.calculate_annualized_volatility(returns)
@@ -38,14 +38,14 @@ def test_sharpe_and_sortino_ratio():
     assert isinstance(sortino, float)
 
 def test_max_drawdown():
-    # Peak at 120, trough at 90 -> Drawdown = (90 - 120) / 120 = -0.25 (-25%)
+
     prices = [100.0, 110.0, 120.0, 105.0, 90.0, 115.0]
     mdd = QuantitativeAnalyticsEngine.calculate_max_drawdown(prices)
     assert pytest.approx(mdd, 0.0001) == -0.25
 
 def test_beta():
     asset = np.array([0.02, 0.04, -0.01, 0.03, -0.02])
-    bench = np.array([0.01, 0.02, -0.005, 0.015, -0.01])  # Asset moves exactly 2x benchmark
+    bench = np.array([0.01, 0.02, -0.005, 0.015, -0.01])
     beta = QuantitativeAnalyticsEngine.calculate_beta(asset, bench)
     assert pytest.approx(beta, 0.01) == 2.0
 
@@ -57,16 +57,16 @@ def test_var_and_cvar():
     cvar_95 = QuantitativeAnalyticsEngine.calculate_cvar(returns, 0.95)
 
     assert var_95 > 0.0
-    assert var_99 > var_95  # 99% VaR must be strictly greater than 95% VaR
-    assert cvar_95 >= var_95  # Expected shortfall must be >= VaR
+    assert var_99 > var_95
+    assert cvar_95 >= var_95
 
 def test_rsi_bounds():
-    # Uptrend prices
+
     prices = [100 + i * 2 for i in range(30)]
     rsi = QuantitativeAnalyticsEngine.calculate_rsi(prices, period=14)
     assert rsi is not None
     assert 0.0 <= rsi <= 100.0
-    assert rsi > 70.0  # Strong uptrend should show high RSI
+    assert rsi > 70.0
 
 def test_macd_and_bollinger():
     np.random.seed(42)

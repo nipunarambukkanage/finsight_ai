@@ -41,7 +41,7 @@ export const SettingsPage: React.FC = () => {
     <div id="settings-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -63,7 +63,7 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
-      {/* Active Provider Selector */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Multi-Provider LLM Abstraction</h2>
 
@@ -118,7 +118,7 @@ export const SettingsPage: React.FC = () => {
         </form>
       </div>
 
-      {/* System Telemetry & Environment Information */}
+
       <div className="glass-card">
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Runtime Telemetry & Architecture</h2>
 

@@ -41,7 +41,6 @@ def test_qa_agent_detects_lookahead_bias():
         "import pandas as pd\n\n"
         "class CandidateStrategy:\n"
         "    def generate_signals(self, df: pd.DataFrame) -> np.ndarray:\n"
-        "        # CHEATING: Look at future price using shift(-1)\n"
         "        future_ret = df['close'].shift(-5) - df['close']\n"
         "        signals = np.where(future_ret > 0, 1, 0)\n"
         "        return signals\n"

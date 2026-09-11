@@ -4,7 +4,7 @@
 
 FinSight AI employs a decoupled, provider-agnostic, resilient artificial intelligence architecture tailored specifically for institutional equity research and financial analytics. The core design principles are:
 
-1. **Deterministic Zero-Credential Fallback**: Every capability operates out-of-the-box with realistic institutional synthetic data without requiring proprietary API keys.
+1. **Explicit demo profile**: A zero-credential deterministic profile is available for demonstrations and contract tests. Production mode preserves provider and data failures as typed limitations rather than silently fabricating evidence.
 2. **Provider Pluggability**: Standardized `LLMProviderInterface` decouples application business logic from underlying foundation model APIs (OpenAI, Anthropic, AWS Bedrock, Hugging Face).
 3. **Domain Specialization**: Integration of financial-domain models (such as Hugging Face FinBERT) alongside general frontier reasoning models.
 4. **Multimodal Grounding**: Visual chart inspection and audio interfaces complement structured quantitative telemetry.
@@ -69,12 +69,12 @@ The platform supports dynamic provider switching via the `X-Provider-Name` heade
 | Provider Key | Primary Foundation Model | Default Embeddings | Fallback Strategy |
 | :--- | :--- | :--- | :--- |
 | `demo` | Deterministic Institutional Mock | 384-dim Synthetic Semantic Vectors | Direct Local Execution |
-| `openai` | `gpt-4o` | `text-embedding-3-small` (1536-dim) | Fallback to `demo` if API key is invalid |
-| `anthropic`| `claude-3-5-sonnet-20241022` | Local / Hugging Face Embeddings | Fallback to `demo` on quota exhaustion |
-| `huggingface`| `ProsusAI/finbert`, `mistralai/Mistral-7B` | `sentence-transformers/all-MiniLM-L6-v2` | Fallback to lexicon / demo |
-| `bedrock` | `anthropic.claude-3-5-sonnet-20240620-v1:0`| `amazon.titan-embed-text-v2:0` | Fallback to `demo` |
+| `openai` | `gpt-4o` | `text-embedding-3-small` (1536-dim) | Typed provider error in production; demo only when explicitly enabled |
+| `anthropic`| `claude-3-5-sonnet-20241022` | Local / Hugging Face Embeddings | Typed provider error in production; demo only when explicitly enabled |
+| `huggingface`| `ProsusAI/finbert`, `mistralai/Mistral-7B` | `sentence-transformers/all-MiniLM-L6-v2` | Lexicon fallback only for the separately labelled sentiment path |
+| `bedrock` | `anthropic.claude-3-5-sonnet-20240620-v1:0`| `amazon.titan-embed-text-v2:0` | Typed provider error in production; demo only when explicitly enabled |
 
-If external credentials are missing or network endpoints return transient 4xx/5xx responses, the system automatically degrades gracefully to `DemoProvider` while logging telemetry warnings through `SensitiveDataFilter`.
+External credentials and endpoint failures are recorded with bounded retry telemetry. `DemoProvider` is selected only by the explicit `DEMO_MODE` profile (or an individual request that opts into demo fallback).
 
 ---
 
@@ -91,7 +91,7 @@ Financial text sentiment fundamentally diverges from general English sentiment (
 4. **Entity & Chunk Weighting**: Filings and news releases are segmented into paragraph-level chunks, classified individually, and aggregated into rolling 7-day and 30-day sentiment trajectories.
 
 ### 3.2 Rule-Based Lexicon Fallback
-To ensure 100% test and deployment reliability without downloading heavy PyTorch weights in air-gapped or lightweight test environments, the engine implements a Loughran-McDonald institutional financial lexicon fallback with over 200 curated financial polarity stems.
+To keep tests and lightweight deployments usable without downloading heavy PyTorch weights, the engine implements a Loughran-McDonald institutional financial lexicon fallback with over 200 curated financial polarity stems. The fallback is labelled separately from FinBERT outputs.
 
 ---
 

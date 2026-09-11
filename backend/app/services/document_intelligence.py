@@ -63,7 +63,7 @@ class FinancialDocumentIntelligenceService:
             risks.append("Data center grid energy availability and high-density semiconductor supply bottlenecks.")
         if "export" in lower or "china" in lower or "tariffs" in lower:
             risks.append("Semiconductor export licensing restrictions to international regional markets.")
-        
+
         if not risks:
             risks.append("Market macro volatility, currency exchange rate fluctuations, and enterprise IT budget cycles.")
         return risks
@@ -77,7 +77,7 @@ class FinancialDocumentIntelligenceService:
         title_a = doc_a.title if doc_a else f"Document #{doc_id_a}"
         title_b = doc_b.title if doc_b else f"Document #{doc_id_b}"
 
-        # Structured comparative metrics diff
+
         metrics_diff = [
             MetricDiff(
                 metric="Total Net Revenue",

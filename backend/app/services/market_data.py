@@ -215,7 +215,7 @@ class DeterministicDemoMarketProvider(BaseMarketDataProvider):
 
     def _generate_all_sample_prices(self):
         """Generate deterministic Geometric Brownian Motion prices for all tickers."""
-        np.random.seed(42)  # Deterministic seed for reproducible testing and demos
+        np.random.seed(42)
         end_date = datetime(2025, 1, 15)
 
         for ticker, meta in self.COMPANIES.items():
@@ -225,17 +225,17 @@ class DeterministicDemoMarketProvider(BaseMarketDataProvider):
             vol = meta.get("volatility", 0.25)
             base_p = meta.get("base_price", 100.0)
 
-            # Generate Brownian path
+
             rand_shocks = np.random.normal(0, 1, days)
             returns = (drift - 0.5 * vol**2) * dt + vol * np.sqrt(dt) * rand_shocks
 
-            # Construct price series backward from current base_price
+
             price_series = [base_p]
             for r in reversed(returns):
                 prev = price_series[-1] / (1.0 + r)
                 price_series.append(prev)
             price_series.reverse()
-            price_series = price_series[1:]  # Exactly 252 days
+            price_series = price_series[1:]
 
             bars: List[PriceBar] = []
             for i, p in enumerate(price_series):
@@ -296,17 +296,17 @@ class DeterministicDemoMarketProvider(BaseMarketDataProvider):
         overview = await self.get_overview(t)
         if not overview:
             return None
-        
+
         bars = await self.get_prices(t)
         closes = [b.close for b in bars]
         returns = QuantitativeAnalyticsEngine.calculate_daily_returns(closes)
-        
-        # Benchmark returns (SPY)
+
+
         spy_bars = await self.get_prices("SPY")
         spy_closes = [b.close for b in spy_bars]
         spy_returns = QuantitativeAnalyticsEngine.calculate_daily_returns(spy_closes)
 
-        # Quantitative metrics
+
         ann_vol = QuantitativeAnalyticsEngine.calculate_annualized_volatility(returns)
         sharpe = QuantitativeAnalyticsEngine.calculate_sharpe_ratio(returns)
         sortino = QuantitativeAnalyticsEngine.calculate_sortino_ratio(returns)
@@ -316,7 +316,7 @@ class DeterministicDemoMarketProvider(BaseMarketDataProvider):
         var_99 = QuantitativeAnalyticsEngine.calculate_var(returns, 0.99, "historical")
         cvar_95 = QuantitativeAnalyticsEngine.calculate_cvar(returns, 0.95)
 
-        # Technical indicators
+
         rsi_val = QuantitativeAnalyticsEngine.calculate_rsi(closes)
         macd_dict = QuantitativeAnalyticsEngine.calculate_macd(closes)
         bb_dict = QuantitativeAnalyticsEngine.calculate_bollinger_bands(closes)

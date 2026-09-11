@@ -19,7 +19,7 @@ def test_deterministic_backtest_with_costs_and_slippage():
         "volume": [1000000.0] * 100
     })
 
-    # Alternating signals: Buy at 10, Sell at 20, Buy at 30, Sell at 40
+
     signals = np.zeros(100, dtype=int)
     signals[10:20] = 1
     signals[30:40] = 1
@@ -62,7 +62,7 @@ def test_shadow_trading_lifecycle_and_virtual_fills():
     assert sim.status == "ACTIVE"
     assert sim.is_simulation_only is True
 
-    # Process Buy tick
+
     sim = shadow_trading_service.process_market_tick(
         simulation_id=sim.simulation_id,
         current_price=150.0,
@@ -72,26 +72,26 @@ def test_shadow_trading_lifecycle_and_virtual_fills():
     assert len(sim.hypothetical_orders) == 1
     assert sim.hypothetical_orders[0]["side"] == "BUY"
     assert len(sim.simulated_fills) == 1
-    assert sim.simulated_fills[0]["price"] > 150.0  # Slippage added to buy fill
+    assert sim.simulated_fills[0]["price"] > 150.0
     assert sim.virtual_portfolio["shares"] > 0
 
-    # Pause simulation
+
     paused = shadow_trading_service.pause_simulation(sim.simulation_id)
     assert paused.status == "PAUSED"
 
-    # Tick while paused should not execute
+
     res = shadow_trading_service.process_market_tick(
         simulation_id=sim.simulation_id,
         current_price=160.0,
         signal=0
     )
-    assert len(res.hypothetical_orders) == 1  # No new order
+    assert len(res.hypothetical_orders) == 1
 
-    # Resume simulation
+
     resumed = shadow_trading_service.resume_simulation(sim.simulation_id)
     assert resumed.status == "ACTIVE"
 
-    # Process Exit tick
+
     final_sim = shadow_trading_service.process_market_tick(
         simulation_id=sim.simulation_id,
         current_price=160.0,

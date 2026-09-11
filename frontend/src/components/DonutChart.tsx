@@ -10,13 +10,13 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, size = 200 }) => {
   const total = entries.reduce((acc, [_, val]) => acc + val, 0);
 
   const colors = [
-    '#06b6d4', // Cyan
-    '#3b82f6', // Blue
-    '#10b981', // Emerald
-    '#f59e0b', // Amber
-    '#8b5cf6', // Purple
-    '#f43f5e', // Rose
-    '#64748b'  // Slate
+    '#06b6d4',
+    '#3b82f6',
+    '#10b981',
+    '#f59e0b',
+    '#8b5cf6',
+    '#f43f5e',
+    '#64748b'
   ];
 
   let cumulativeAngle = 0;
@@ -61,7 +61,7 @@ export const DonutChart: React.FC<DonutChartProps> = ({ data, size = 200 }) => {
         })}
       </svg>
 
-      {/* Legend */}
+
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {entries.map(([label, val], idx) => {
           const color = colors[idx % colors.length];

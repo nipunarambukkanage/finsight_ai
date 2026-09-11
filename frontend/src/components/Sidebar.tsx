@@ -70,7 +70,7 @@ export const Sidebar: React.FC = () => {
         overflowY: 'auto'
       }}
     >
-      {/* Brand Header */}
+
       <div
         style={{
           padding: '22px 24px',
@@ -104,7 +104,7 @@ export const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Nav List */}
+
       <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
         {navGroups.map((grp) => (
           <div key={grp.group}>
@@ -164,7 +164,7 @@ export const Sidebar: React.FC = () => {
         ))}
       </div>
 
-      {/* Footer info */}
+
       <div
         style={{
           padding: '16px',

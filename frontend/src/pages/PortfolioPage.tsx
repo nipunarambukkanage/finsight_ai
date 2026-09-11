@@ -46,7 +46,7 @@ export const PortfolioPage: React.FC = () => {
     <div id="portfolio-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -61,7 +61,7 @@ export const PortfolioPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Portfolio Top Metrics */}
+
       <div className="grid-12" style={{ marginBottom: '24px' }}>
         <div className="col-3 glass-card">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600 }}>TOTAL PORTFOLIO VALUE</div>
@@ -105,15 +105,15 @@ export const PortfolioPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Middle Grid: Sector Donut & AI Advisor */}
+
       <div className="grid-12" style={{ marginBottom: '24px' }}>
-        {/* Sector Allocation Donut */}
+
         <div className="col-6 glass-card">
           <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Sector & Asset Allocation</h2>
           <DonutChart data={p.sector_allocation} size={220} />
         </div>
 
-        {/* AI Portfolio Risk Advisor */}
+
         <div className="col-6 glass-card">
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
             <Bot size={18} color="var(--accent-cyan)" />
@@ -146,7 +146,7 @@ export const PortfolioPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Holdings Table */}
+
       <div className="glass-card">
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Portfolio Positions & Holdings</h2>
 

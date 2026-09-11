@@ -42,7 +42,7 @@ export const ShowcasePage: React.FC = () => {
     <div id="technology-showcase-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -57,7 +57,7 @@ export const ShowcasePage: React.FC = () => {
         </p>
       </div>
 
-      {/* Real-Time LLM Evaluation Benchmark Metrics */}
+
       <div className="glass-card" style={{ marginBottom: '28px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -102,7 +102,7 @@ export const ShowcasePage: React.FC = () => {
         </div>
       </div>
 
-      {/* 11 Enterprise Engineering Capability Cards */}
+
       <div className="glass-card">
         <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '20px' }}>Demonstrated Technical Competencies</h2>
 

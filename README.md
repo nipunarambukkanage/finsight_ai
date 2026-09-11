@@ -7,9 +7,20 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![AWS Fargate](https://img.shields.io/badge/AWS-ECS%20Fargate%20%7C%20Bedrock-FF9900.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
-[![Tests](https://img.shields.io/badge/Pytest%20%26%20Vitest-Passing%20100%25-brightgreen.svg)](#testing--verification)
+[![Verification](https://img.shields.io/badge/verification-rerun%20locally-blue.svg)](#testing--verification)
 
 > **Enterprise FinTech Reference Platform**: A commercial-grade investment intelligence application combining Generative AI, multi-provider LLM orchestration, verifiable SEC filing RAG, multi-stage autonomous research agents, Wall Street quantitative analytics, non-anticipative time-series machine learning, multimodal chart vision, and Voice AI.
+
+## Assessment-ready deliverables
+
+The repository now includes independently executable submissions for all three
+assessment domains:
+
+- `task1_financial/`: live/demo-labelled yfinance pipeline, first-principles indicators, validated sentiment/signal reasoning, and one-page brief rendering.
+- `task2_genai/`: filing-risk extraction contracts, teacher dataset generation and source-disjoint splits, QLoRA training configuration, merged-model flow, and held-out evaluation.
+- `task3_agentic/`: five authorized tools, observation-driven routing, typed two-agent critique handoff, persistent cache, and `agent_trace.jsonl`.
+
+See [docs/assessment-evidence.md](docs/assessment-evidence.md), [CITATIONS.md](CITATIONS.md), and [REFLECTION.md](REFLECTION.md). Run the assessment paths from [docs/runbook.md](docs/runbook.md) and follow the final [submission runbook](docs/submission-runbook.md). The [five-minute video walkthrough guide](docs/video-walkthrough-guide.pdf) includes a simple narration script. Live provider and Colab outputs must be regenerated before submission; fixture outputs are explicitly labelled and are not live evidence.
 
 ---
 
@@ -93,11 +104,11 @@ graph TD
 
 ---
 
-## 3. Zero-Credential Institutional Demo Mode
+## 3. Explicit Zero-Credential Institutional Demo Mode
 
-FinSight AI is engineered to be **frictionless for evaluators, clients, and CI/CD pipelines**. 
-- **No external API keys are required** to explore 100% of the application.
-- The platform automatically activates `DemoProvider` when third-party keys are absent, utilizing high-fidelity deterministic 252-day geometric Brownian motion price paths, real-world fundamental balance sheets, indexed SEC 10-Ks, and pre-computed FinBERT sentiment scores for:
+FinSight AI is engineered to be **frictionless for evaluators, clients, and CI/CD pipelines**.
+- **No external API keys are required** when the explicit `DEMO_MODE=True` profile is selected.
+- That profile uses high-fidelity deterministic 252-day geometric Brownian motion price paths, labelled synthetic filings, and deterministic sentiment fixtures for:
   - **Apple Inc. (`AAPL`)**
   - **Microsoft Corporation (`MSFT`)**
   - **NVIDIA Corporation (`NVDA`)**
@@ -106,6 +117,16 @@ FinSight AI is engineered to be **frictionless for evaluators, clients, and CI/C
   - **Tesla Inc. (`TSLA`)**
 
 Visual pills across the interface transparently declare when simulated institutional datasets are active.
+
+### Cost boundary
+
+The repository has no billing integration and does not provision cloud resources by
+itself. The default local profile (`DEMO_MODE=True`, `DEFAULT_LLM_PROVIDER=DEMO`)
+uses deterministic fixtures and open-source local services, so it can be run without
+paid accounts. The AWS Terraform files and hosted model adapters are reference or
+opt-in paths; applying Terraform or supplying a provider key is outside the free
+local profile and may incur that provider's charges. Keep those keys empty and do
+not run `terraform apply` when a zero-cost evaluation is required.
 
 ---
 
@@ -149,7 +170,7 @@ To run the complete stack including PostgreSQL with `pgvector` and Redis:
 ```bash
 docker compose up --build
 ```
-- Frontend: `http://localhost:3000`
+- Frontend: `http://localhost` (or `http://localhost:5173`)
 - Backend API: `http://localhost:8000`
 - API Docs: `http://localhost:8000/docs`
 
@@ -163,21 +184,28 @@ Copy `.env.example` to `.env` to configure external foundation models or customi
 # Server
 APP_ENV=development
 PORT=8000
-CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
-JWT_SECRET_KEY=change-this-in-production-to-a-secure-random-token
+BACKEND_CORS_ORIGINS=["http://localhost:5173","http://localhost:3000"]
+SECRET_KEY=change-this-in-production-to-a-secure-random-token
 
-# Default LLM Provider (demo | openai | anthropic | huggingface | bedrock)
+# Default LLM route (DEMO | GROQ | OPENROUTER | OLLAMA | VLLM)
 DEFAULT_LLM_PROVIDER=demo
+DEMO_MODE=True  # set False in production; no fabricated fallback is then permitted
 
-# External Model Keys (Optional - activates real cloud inference when set)
+# Hosted model keys (optional; leave blank for zero-cost demo mode)
 OPENAI_API_KEY=
+OPENROUTER_API_KEY=
+GROQ_API_KEY=
 ANTHROPIC_API_KEY=
 HUGGINGFACE_API_TOKEN=
 AWS_REGION=us-east-1
 AWS_BEDROCK_MODEL_ID=anthropic.claude-3-5-sonnet-20240620-v1:0
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+VLLM_BASE_URL=http://localhost:8001/v1
+VLLM_MODEL=Qwen/Qwen2.5-1.5B-Instruct
 
-# Database & Cache (Used in Docker / Production)
-DATABASE_URL=postgresql://finsight:finsight_secret@localhost:5432/finsight_db
+# Database & cache (SQLite is the zero-cost local default)
+DATABASE_URL=sqlite+aiosqlite:///./finsight.db
 REDIS_URL=redis://localhost:6379/0
 ```
 
@@ -191,8 +219,7 @@ The platform maintains extensive unit, integration, and security test suites for
 ```bash
 pytest tests/backend/
 ```
-**Results**:
-- **36 passed automated tests** (100% pass rate in 21.10s).
+**Historical baseline** (from an earlier repository revision): 36 automated tests were reported as passing. This is not a current completion claim; rerun the suite after installing dependencies.
 - Comprehensive test coverage across LangGraph stateful orchestration, AST static security sandbox, QA look-ahead bias perturbation, deterministic backtesting, slippage and fee friction, shadow paper trading, persistent memory sanitization/deduplication, prompt injection defense, and quantitative risk engines.
 - Zero deprecation warnings (`datetime.now(timezone.utc)` standard enforced).
 
@@ -201,16 +228,14 @@ pytest tests/backend/
 cd frontend
 npm test
 ```
-**Results**:
-- **4/4 passed component test suites** in 3.68s verifying Workflow Hub rendering, stage progression, regulatory disclaimer banners, DonutChart SVG math, and CorrelationHeatmap cell mapping.
+**Historical baseline** (from an earlier repository revision): 4 component suites were reported as passing. Rerun after `npm ci` for current evidence.
 
 ### Production Build Verification
 ```bash
 cd frontend
 npm run build
 ```
-- Type-checked with **zero TypeScript compilation errors**.
-- Optimized production bundle generated in 1.19s (`frontend/dist/`).
+- Type-check and bundle verification must be rerun after the current changes.
 
 ---
 
@@ -230,6 +255,7 @@ See [docs/aws-architecture.md](docs/aws-architecture.md) for full cloud configur
 ## 8. Documentation Sitemap
 
 - [docs/architecture.md](docs/architecture.md): High-level system architecture, microservices, and data flows.
+- [docs/architecture-v2.md](docs/architecture-v2.md): Assessment-first modular-monolith target architecture and adoption records.
 - [docs/agents.md](docs/agents.md): LangGraph stateful orchestration, 8-stage research agent, and SSE streaming protocol.
 - [docs/memory.md](docs/memory.md): Persistent memory architecture, secret sanitization, and pgvector compatibility.
 - [docs/backtesting.md](docs/backtesting.md): Deterministic backtesting engine, slippage/fee friction, and look-ahead bias prevention.

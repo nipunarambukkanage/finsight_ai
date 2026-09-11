@@ -1,25 +1,26 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from typing import List
 from backend.app.models.schemas import (
     SentimentRequest, SentimentResponse, BatchSentimentRequest, SentimentDistribution
 )
 from backend.app.services.sentiment import sentiment_service
+from backend.app.core.security import get_current_user, TokenPayload
 
 router = APIRouter()
 
 @router.post("/analyze", response_model=SentimentResponse)
-async def analyze_sentiment(req: SentimentRequest):
+async def analyze_sentiment(req: SentimentRequest, user: TokenPayload = Depends(get_current_user)):
     """Analyze single financial text snippet using FinBERT / finance domain lexicon."""
     return sentiment_service.analyze_text(req.text, ticker=req.ticker)
 
 @router.post("/batch", response_model=List[SentimentResponse])
-async def analyze_batch_sentiment(req: BatchSentimentRequest):
+async def analyze_batch_sentiment(req: BatchSentimentRequest, user: TokenPayload = Depends(get_current_user)):
     """Analyze a batch of financial headlines or report excerpts."""
     texts = [item.text for item in req.items]
     return sentiment_service.analyze_batch(texts)
 
 @router.get("/overview", response_model=SentimentDistribution)
-async def get_market_sentiment_overview():
+async def get_market_sentiment_overview(user: TokenPayload = Depends(get_current_user)):
     """Retrieve aggregate sentiment distribution and timeline across current watchlist news."""
     sample_news = [
         "Apple reports record high services margin expansion exceeding analyst expectations.",

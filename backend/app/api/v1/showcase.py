@@ -14,8 +14,8 @@ async def get_technology_capabilities():
             "category": "Generative AI",
             "title": "Large Language Models & Multi-Provider Architecture",
             "where_used": "AI Research Assistant, Report Writer, Comparative Intelligence",
-            "why_used": "Extracts semantic insights from unstructured financial disclosures with strict provider isolation and zero-downtime failover.",
-            "tech_stack": "OpenAI, Anthropic, Bedrock, DemoProvider Abstraction"
+            "why_used": "Extracts semantic insights from unstructured financial disclosures through a gateway with bounded retries, telemetry, and explicit demo policy.",
+            "tech_stack": "Groq, OpenRouter, Ollama, vLLM, DemoProvider Gateway"
         },
         {
             "id": "huggingface",
@@ -46,7 +46,7 @@ async def get_technology_capabilities():
             "category": "Financial Technology",
             "title": "Python Quantitative Analytics Engine",
             "where_used": "Stock workspace, Risk indicators, Portfolio Intelligence",
-            "why_used": "Guarantees 100% mathematical accuracy for Sharpe, Sortino, VaR 95/99%, Expected Shortfall, RSI, MACD, and Bollinger Bands without LLM approximation.",
+            "why_used": "Keeps Sharpe, Sortino, VaR 95/99%, Expected Shortfall, RSI, MACD, and Bollinger Bands deterministic and independent of LLM approximation.",
             "tech_stack": "NumPy, Pandas, SciPy, Scikit-Learn"
         },
         {

@@ -9,9 +9,9 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = "super-secret-key-finsight-ai-demo-mode-production-ready"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
-    # CORS
+
     BACKEND_CORS_ORIGINS: List[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
@@ -19,23 +19,29 @@ class Settings(BaseSettings):
         "http://127.0.0.1:3000",
     ]
 
-    # Server
+
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
-    # Database
+
     DATABASE_URL: str = "sqlite+aiosqlite:///./finsight.db"
 
-    # Cache
+
     REDIS_URL: str = "redis://localhost:6379/0"
 
-    # AI Provider Settings
+
     DEFAULT_LLM_PROVIDER: str = "DEMO"
     DEMO_MODE: bool = True
 
     OPENAI_API_KEY: str = ""
     ANTHROPIC_API_KEY: str = ""
     HUGGINGFACE_API_TOKEN: str = ""
+    GROQ_API_KEY: str = ""
+    OPENROUTER_API_KEY: str = ""
+    VLLM_BASE_URL: str = "http://localhost:8001/v1"
+    VLLM_MODEL: str = "Qwen/Qwen2.5-1.5B-Instruct"
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "llama3.2"
 
     AWS_REGION: str = "us-east-1"
     AWS_ACCESS_KEY_ID: str = ""
@@ -45,10 +51,11 @@ class Settings(BaseSettings):
     HF_SENTIMENT_MODEL: str = "ProsusAI/finbert"
     HF_EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
     HF_DEVICE: str = "cpu"
+    FINSIGHT_ENABLE_LOCAL_EMBEDDINGS: bool = False
 
     UPLOAD_DIR: str = "./data/uploads"
     VECTOR_STORE_DIR: str = "./data/vector_store"
-    MAX_UPLOAD_SIZE_BYTES: int = 25 * 1024 * 1024  # 25 MB
+    MAX_UPLOAD_SIZE_BYTES: int = 25 * 1024 * 1024
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -59,7 +66,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Ensure runtime directories exist
+
 os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
 os.makedirs(settings.VECTOR_STORE_DIR, exist_ok=True)
 os.makedirs("./data/sample_reports", exist_ok=True)

@@ -12,7 +12,7 @@ async def test_workflow_phase1_and_human_approval_pause():
     assert state.status == "WAITING_APPROVAL"
     assert state.stage == "human_approval"
 
-    # Verify all prior stage artifacts were produced with typed contracts
+
     assert state.research_output is not None
     assert state.research_output.ticker == "AAPL"
     assert len(state.research_output.sources) > 0

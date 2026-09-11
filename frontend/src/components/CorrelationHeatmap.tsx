@@ -7,12 +7,12 @@ interface CorrelationHeatmapProps {
 
 export const CorrelationHeatmap: React.FC<CorrelationHeatmapProps> = ({ tickers, matrix }) => {
   const getColor = (val: number) => {
-    if (val === 1.0) return 'rgba(6, 182, 212, 0.9)'; // Diagonal cyan
-    if (val > 0.6) return 'rgba(16, 185, 129, 0.7)'; // High pos green
+    if (val === 1.0) return 'rgba(6, 182, 212, 0.9)';
+    if (val > 0.6) return 'rgba(16, 185, 129, 0.7)';
     if (val > 0.3) return 'rgba(16, 185, 129, 0.4)';
     if (val > 0.0) return 'rgba(16, 185, 129, 0.15)';
     if (val > -0.3) return 'rgba(244, 63, 94, 0.15)';
-    return 'rgba(244, 63, 94, 0.6)'; // High neg red
+    return 'rgba(244, 63, 94, 0.6)';
   };
 
   return (

@@ -1,7 +1,3 @@
-# ==============================================================================
-# FinSight AI - Backend Production Dockerfile
-# Multi-stage Python 3.12 image with security hardening & non-root execution
-# ==============================================================================
 
 FROM python:3.12-slim AS builder
 
@@ -15,27 +11,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir --user -r requirements.txt
 
-# Final Runtime Stage
 FROM python:3.12-slim AS runner
 
 WORKDIR /app
 
-# Install curl for container health check
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy installed Python packages from builder
 COPY --from=builder /root/.local /root/.local
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 
-# Copy application source code
 COPY backend/ /app/backend/
 COPY pytest.ini /app/
 
-# Create runtime directories
 RUN mkdir -p /app/data/uploads /app/data/vector_store /app/data/sample_reports
 
 EXPOSE 8000

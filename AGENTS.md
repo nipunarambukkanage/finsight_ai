@@ -51,3 +51,17 @@ The agents interact strictly with typed, deterministic Python tools:
 - **Maximum Execution Duration:** 15,000ms per complete agent run.
 - **Trace Streaming:** Progress is streamed in real time via Server-Sent Events (`/api/v1/agents/research/stream/{ticker}`).
 - **No Hallucination Fallback:** If filing evidence is missing, the agent explicitly documents data limitations in Section 10 of the report.
+
+## 5. Assessment workflow authorization
+
+The assessment submissions under `task1_financial/`, `task2_genai/`, and
+`task3_agentic/` are independent workflows and do not replace the legacy
+15-second institutional route above. Task 3 is authorized to use only these
+typed tools: `get_price_data(ticker, period)`, `get_news(ticker, n)`,
+`calculate_volatility(ticker, window)`, `llm_sentiment(headlines)`, and
+`web_search(query)`. Its single-agent and two-agent demonstrations enforce
+role-specific allowlists, one clarification cycle, a 180-second deadline,
+12-tool and 10-model-call budgets, persistent cache metadata, and JSONL tool
+traces. Provider outages remain visible as limitations; synthetic data is
+labelled explicitly and is never substituted for live evidence without an
+explicit demo mode.

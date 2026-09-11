@@ -35,7 +35,7 @@ class DeterministicBacktestEngine:
     def run_backtest(
         cls,
         df: pd.DataFrame,
-        signals: np.ndarray,  # 1 (Long), -1 (Short/Cash), 0 (Neutral)
+        signals: np.ndarray,
         ticker: str = "AAPL",
         strategy_id: str = "strat-1",
         version: str = "1.0.0",
@@ -52,7 +52,7 @@ class DeterministicBacktestEngine:
         if len(df) < 10 or len(signals) != len(df):
             raise ValueError(f"Insufficient data or signal length mismatch: df={len(df)}, signals={len(signals)}")
 
-        # Chronological splits
+
         train_df, val_df, test_df = cls.split_chronological(df)
         train_range = f"{train_df['timestamp'].min().strftime('%Y-%m-%d')} to {train_df['timestamp'].max().strftime('%Y-%m-%d')}"
         val_range = f"{val_df['timestamp'].min().strftime('%Y-%m-%d')} to {val_df['timestamp'].max().strftime('%Y-%m-%d')}"
@@ -71,7 +71,10 @@ class DeterministicBacktestEngine:
 
         current_trade: Optional[Dict[str, Any]] = None
 
-        # Execute bar-by-bar
+
+
+
+        eval_start = len(train_df) + len(val_df)
         for i in range(len(df)):
             row = df.iloc[i]
             ts = row["timestamp"]
@@ -81,17 +84,17 @@ class DeterministicBacktestEngine:
             high_p = float(row["high"])
             low_p = float(row["low"])
 
-            # Signal from PREVIOUS bar is executed at CURRENT bar Open
-            if i > 0:
+
+            if i >= eval_start and i > 0:
                 sig = signals[i - 1]
 
-                # Long Entry Condition: Signal is 1 and not currently in position
+
                 if sig > 0 and position_shares == 0.0:
                     fill_price = open_p * (1.0 + (slippage_bps / 10000.0))
-                    # Check impossible fill
-                    if fill_price > high_p * 1.01:
-                        fill_price = high_p
-                        suspicious_flags.append(f"Fill price clipped to High at {ts_str}")
+
+
+                    if fill_price > high_p:
+                        suspicious_flags.append(f"Entry open-plus-slippage exceeded reported high at {ts_str}")
 
                     target_alloc = cash * max_position_pct
                     shares_to_buy = math.floor(target_alloc / fill_price)
@@ -119,12 +122,11 @@ class DeterministicBacktestEngine:
                             "entry_costs": round(total_cost, 2)
                         }
 
-                # Exit Condition: Signal is 0 or -1 and currently holding position
+
                 elif sig <= 0 and position_shares > 0.0:
                     fill_price = open_p * (1.0 - (slippage_bps / 10000.0))
-                    if fill_price < low_p * 0.99:
-                        fill_price = low_p
-                        suspicious_flags.append(f"Exit fill price clipped to Low at {ts_str}")
+                    if fill_price < low_p:
+                        suspicious_flags.append(f"Exit open-minus-slippage fell below reported low at {ts_str}")
 
                     trade_val = position_shares * fill_price
                     comm = QuantitativeAnalyticsEngine.calculate_transaction_costs(trade_val, cost_bps)
@@ -160,7 +162,7 @@ class DeterministicBacktestEngine:
 
                     position_shares = 0.0
 
-            # Mark to market equity at bar Close
+
             port_val = cash + (position_shares * close_p)
             equity_curve.append({
                 "date": ts_str,
@@ -170,13 +172,14 @@ class DeterministicBacktestEngine:
                 "benchmark_price": close_p
             })
 
-        # Calculate equity returns
-        eq_series = [e["equity"] for e in equity_curve]
+
+        eval_curve = equity_curve[eval_start:]
+        eq_series = [e["equity"] for e in eval_curve]
         daily_rets = QuantitativeAnalyticsEngine.calculate_daily_returns(eq_series)
-        bench_series = [e["benchmark_price"] for e in equity_curve]
+        bench_series = [e["benchmark_price"] for e in eval_curve]
         bench_rets = QuantitativeAnalyticsEngine.calculate_daily_returns(bench_series)
 
-        # Performance Metrics
+
         tot_return = (eq_series[-1] - initial_capital) / initial_capital
         ann_vol = QuantitativeAnalyticsEngine.calculate_annualized_volatility(daily_rets)
         sharpe = QuantitativeAnalyticsEngine.calculate_sharpe_ratio(daily_rets)
@@ -188,7 +191,7 @@ class DeterministicBacktestEngine:
         turnover = QuantitativeAnalyticsEngine.calculate_turnover(volume_traded, initial_capital)
         bench_comp = QuantitativeAnalyticsEngine.calculate_benchmark_comparison(daily_rets, bench_rets)
 
-        # Anomaly checks
+
         if sharpe > 4.5:
             suspicious_flags.append(f"WARNING: Suspiciously high Sharpe Ratio ({sharpe:.2f}). Check for look-ahead bias or overfitting.")
         if len(trades) > 5 and hit_rate >= 0.95:

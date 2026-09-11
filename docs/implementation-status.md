@@ -1,14 +1,20 @@
-# FinSight AI: Implementation Status & Baseline Audit
+# FinSight AI: Implementation Status & Verification Ledger
 
-**Audit Date:** September 10, 2026  
-**Environment:** Windows (pwsh), Python 3.12.10, Node.js v20+, Vite 8.2.2, React 19.2.8  
+**Revision:** September 11, 2026
 **Repository:** `nipunarambukkanage/finsight_ai`
+
+This ledger describes the current assessment-first revision. Runtime provider,
+GPU, Docker, frontend, and full pytest results are intentionally not asserted
+until they are rerun in the target environment. The assessment packages,
+contracts, notebooks, persistence adapters, and CI validation paths are present
+in the repository; generated live outputs remain execution prerequisites.
 
 ---
 
-## 1. Test & Build Baseline Verification
+## 1. Historical baseline (context only)
 
-Prior to introducing any architectural extensions or code modifications, the full existing test suites and build pipelines were executed against the codebase:
+The following results belonged to an earlier repository revision and are not
+current completion claims:
 
 ### 1.1 Backend Test Suite (`pytest`)
 - **Command:** `.\.venv\Scripts\pytest.exe --cov=backend/app --cov-report=term-missing tests/backend/`
@@ -40,7 +46,7 @@ Prior to introducing any architectural extensions or code modifications, the ful
 
 ---
 
-## 2. Capability Matrix: Implemented vs. Partially Implemented vs. Missing
+## 2. Historical capability matrix (pre-upgrade)
 
 | Domain / Requirement | Status | Existing Implementation State | Gap / Target Upgrade |
 | :--- | :---: | :--- | :--- |
@@ -80,15 +86,28 @@ All new features can be added incrementally without breaking or rewriting existi
 
 ---
 
-## 4. Post-Upgrade Verification & Completion Audit
+## 4. Historical claims and current verification policy
 
-**Completion Date:** September 10, 2026  
-**Status:** **100% Implemented & Verified**
+The results below are historical notes from an earlier repository revision. They
+are retained as context only and are not a current completion claim. Every new
+assessment artifact must be regenerated and its command, environment, and result
+recorded before submission.
 
-### 4.1 Test Execution Results
-- **Backend Test Suite (`pytest`)**:
+## 5. Current architecture additions
+
+The current revision adds independently executable assessment packages under
+`task1_financial/`, `task2_genai/`, and `task3_agentic/`; a model gateway;
+source-aware embeddings; durable run metadata and replayable SSE events;
+SQLAlchemy entities for workflow runs, events, memories, and model telemetry;
+Alembic scaffolding; optional Kafka/Langfuse Compose profiles; and the required
+submission documentation. These additions are implemented, but live-provider,
+Colab training, public model hosting, and final end-to-end verification remain
+execution prerequisites rather than claims made by this document.
+
+### 4.1 Historical test execution results
+- **Backend Test Suite (`pytest`) (historical)**:
   - **Command:** `.\.venv\Scripts\pytest.exe tests/backend/`
-  - **Result:** **36 passed in 21.10s** (100% pass rate).
+  - **Historical result:** **36 passed in 21.10s**. This result is retained only as an earlier baseline.
   - **Coverage Areas:**
     - `test_workflow_orchestration.py`: LangGraph state machine, conditional routing, pause at `WAITING_APPROVAL`, resume after human review.
     - `test_qa_and_sandbox.py`: AST static import/call security checks, prohibited builtins, unit tests, look-ahead bias perturbation detection.
@@ -97,15 +116,15 @@ All new features can be added incrementally without breaking or rewriting existi
     - `test_security_and_injection.py`: Prompt injection sanitization on untrusted SEC text, uncertain fallback, RBAC permissions, separation of duties.
     - Preserved tests: API endpoints, quantitative analytics, sentiment, ML models, and original research agent.
 
-- **Frontend Test Suite (`vitest`)**:
+- **Frontend Test Suite (`vitest`) (historical)**:
   - **Command:** `npm test`
-  - **Result:** **4/4 passed in 3.68s** across 4 test suites:
+  - **Historical result:** **4/4 passed in 3.68s** across 4 test suites:
     - `WorkflowPage.test.tsx`: Workflow Hub header, stage timeline, disclaimers, action buttons.
     - `DisclaimerBanner.test.tsx`: Regulatory notice and simulation-only invariant.
     - `DonutChart.test.tsx`: SVG path rendering.
     - `CorrelationHeatmap.test.tsx`: Dynamic cell color mapping.
 
-- **Frontend Production Build (`tsc -b && vite build`)**:
+- **Frontend Production Build (`tsc -b && vite build`) (historical)**:
   - **Command:** `npm run build`
   - **Result:** **Zero TypeScript errors**, built production bundle in 1.19s (`dist/assets/index-ggSBrVfk.js`).
 

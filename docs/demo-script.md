@@ -46,7 +46,7 @@
   > *"Here is where engineering rigor shines. The Developer Agent wrote executable Python code for a dual-momentum volatility breakout strategy. Before execution, the QA Agent subjected the code to Abstract Syntax Tree (AST) static analysis. We whitelist only mathematical libraries—any attempt to import `os`, `socket`, or call `exec()` is blocked at the grammar level. Next, the QA Agent runs a look-ahead perturbation test: it shocks future prices to prove the strategy doesn't peek forward with negative shifts."*
 - **Key Actions**:
   1. Display the syntax-highlighted candidate Python code (`generate_signals(df)`).
-  2. Show the green QA badges: AST Import Filter Passed, Unit Test Passed, Look-Ahead Bias Absent, Missing Data Resilient.
+  2. Show the QA badges from the current run: AST/import status, unit-test status, look-ahead result, and missing-data result.
 
 ---
 
@@ -79,4 +79,4 @@
 - **Q: How do you prevent look-ahead bias in AI-generated strategies?**
   - *Answer*: Two layers: first, our backtesting engine enforces strict chronological bar-by-bar iteration over temporal train/val/test splits (`shuffle=False`). Second, the QA Agent runs an adversarial perturbation check, perturbing future prices and asserting that past signals remain invariant.
 - **Q: What happens if external LLM providers experience an outage or rate limit?**
-  - *Answer*: The Multi-Provider Gateway features automated retries with exponential backoff, timeout caps, and instantaneous fallback to local Ollama or deterministic zero-credential `DemoProvider`.
+  - *Answer*: The Multi-Provider Gateway applies bounded retries, timeout caps, and structured telemetry. In production it fails closed with a typed provider error; the deterministic `DemoProvider` is available only when the explicit `DEMO_MODE` profile is enabled.

@@ -19,7 +19,7 @@ class DeveloperAgent:
         strategy_id = spec.strategy_id
         version = spec.version
 
-        # Select algorithmic logic based on hypothesis
+
         if "mean reversion" in hypo or "rsi" in hypo:
             source_code = (
                 "import numpy as np\n"
@@ -48,17 +48,16 @@ class DeveloperAgent:
                 "            avg_loss = (avg_loss * (self.rsi_period - 1) + losses[i-1]) / self.rsi_period\n"
                 "            rs = avg_gain / (avg_loss + 1e-9)\n"
                 "            rsi = 100.0 - (100.0 / (1.0 + rs))\n\n"
-                "            # Generate non-anticipative signal for bar i\n"
                 "            if rsi < self.oversold:\n"
-                "                signals[i] = 1  # Buy Long\n"
+                "                signals[i] = 1\n"
                 "            elif rsi > self.overbought:\n"
-                "                signals[i] = 0  # Exit to Cash\n"
+                "                signals[i] = 0\n"
                 "            else:\n"
-                "                signals[i] = signals[i-1]  # Hold position\n"
+                "                signals[i] = signals[i-1]\n"
                 "        return signals\n"
             )
         else:
-            # Dual Moving Average Momentum crossover
+
             source_code = (
                 "import numpy as np\n"
                 "import pandas as pd\n\n"
@@ -73,7 +72,6 @@ class DeveloperAgent:
                 "        close = df['close']\n"
                 "        fast_ma = close.rolling(window=self.fast_window, min_periods=self.fast_window).mean()\n"
                 "        slow_ma = close.rolling(window=self.slow_window, min_periods=self.slow_window).mean()\n\n"
-                "        # Shift signals by 1 to strictly prevent lookahead bias\n"
                 "        raw_signal = (fast_ma > slow_ma).astype(int)\n"
                 "        signals = raw_signal.fillna(0).astype(int).values\n"
                 "        return signals\n"

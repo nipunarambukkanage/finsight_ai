@@ -11,7 +11,7 @@ def route_after_qa(state: WorkflowState) -> str:
     if state.qa_results and state.qa_results.passed:
         logger.info(f"Gate QA -> Backtest: PASSED for workflow {state.workflow_id}")
         return "backtest"
-    
+
     logger.warning(f"Gate QA -> Backtest: BLOCKED (QA checks failed) for workflow {state.workflow_id}")
     return "qa_failed"
 

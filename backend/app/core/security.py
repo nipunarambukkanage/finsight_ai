@@ -4,7 +4,7 @@ from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import OAuth2PasswordBearer
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from backend.app.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -35,11 +35,27 @@ def create_access_token(subject: Union[str, Any], expires_delta: Optional[timede
 async def get_current_user_optional(token: Optional[str] = Depends(oauth2_scheme)) -> Optional[TokenPayload]:
     """Allows demo authentication or valid JWT."""
     if not token:
-        # Return demo analyst user in frictionless demo mode
-        return TokenPayload(sub="demo_analyst", role="senior_analyst")
+
+        if settings.DEMO_MODE:
+            return TokenPayload(sub="demo_analyst", role="senior_analyst")
+        return None
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
         token_data = TokenPayload(**payload)
+        if not token_data.sub:
+            raise JWTError("token subject is required")
         return token_data
-    except JWTError:
-        return TokenPayload(sub="demo_analyst", role="senior_analyst")
+    except (JWTError, ValidationError, ValueError) as exc:
+
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired access token",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+
+
+async def get_current_user(user: Optional[TokenPayload] = Depends(get_current_user_optional)) -> TokenPayload:
+    """Required-auth dependency for mutating and tenant-scoped endpoints."""
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    return user

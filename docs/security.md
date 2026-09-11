@@ -33,7 +33,7 @@ When the Developer Agent generates candidate Python strategy code, the code is s
 - **Import Whitelist**: Only explicit quantitative packages are permitted (`numpy`, `pandas`, `math`, `typing`).
 - **Banned Modules**: Any import of `os`, `sys`, `subprocess`, `socket`, `urllib`, `requests`, `shutil`, or `importlib` raises an immediate `SecurityViolationError`.
 - **Banned Builtins & Invocations**: Direct access to `eval`, `exec`, `open`, `compile`, `globals`, `locals`, `__import__`, or private dunder attributes (`__subclasses__`, `__bases__`) is blocked at the AST node level.
-- **Subprocess Isolation**: Executable testing runs in an isolated subprocess with strict CPU timeout (5,000ms max) and memory consumption limits.
+- **Subprocess Isolation**: Executable testing runs in the pinned Docker sandbox with no network, read-only inputs, dropped capabilities, and strict CPU/memory/process limits. The portable restricted subprocess is available for the explicit demo profile; production fails closed when container isolation is unavailable (`FINSIGHT_REQUIRE_CONTAINER_SANDBOX=True`).
 
 ---
 
@@ -53,6 +53,12 @@ The platform implements explicit permission tiers (`backend/app/orchestration/pe
 | **Developer Agent** | Autonomous System | Write candidate algorithmic Python code conforming to strategy specification | Must pass AST sandbox; zero file system write access |
 | **QA Agent** | Autonomous System | Execute sandbox tests, check look-ahead bias, evaluate edge cases | Cannot alter strategy code or grant deployment approvals |
 | **Human Operator** | Authenticated User | Review strategy diff, inspect backtest ledger, grant shadow trading approval | Cannot approve self-generated strategies without audit signature |
+
+Authentication is deliberately split by profile: `/auth/demo-login` is
+available only while `DEMO_MODE=True`, while application routes require a
+signed bearer token and reject invalid or expired credentials with `401`.
+Production deployments should replace the token issuer with their OIDC/JWKS
+adapter; the route dependencies and tenant checks remain the same.
 
 ---
 

@@ -40,7 +40,7 @@ export const RAGExplorerPage: React.FC = () => {
     <div id="rag-explorer-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -55,7 +55,7 @@ export const RAGExplorerPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Search Input Bar */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: '12px' }}>
           <div style={{ flex: 1, position: 'relative' }}>
@@ -80,7 +80,7 @@ export const RAGExplorerPage: React.FC = () => {
           </button>
         </form>
 
-        {/* Suggested Queries */}
+
         <div style={{ display: 'flex', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '11px', color: 'var(--text-muted)', alignSelf: 'center' }}>Try:</span>
           {[
@@ -101,10 +101,10 @@ export const RAGExplorerPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Results Section */}
+
       {response && (
         <div className="grid-12">
-          {/* Grounded Answer Card */}
+
           <div className="col-8 glass-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -134,7 +134,7 @@ export const RAGExplorerPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Retrieved Chunks & Citations */}
+
           <div className="col-4 glass-card">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -2,7 +2,7 @@ from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 
-# --- Market & Stock Schemas ---
+
 class PriceBar(BaseModel):
     date: str
     open: float
@@ -57,7 +57,7 @@ class StockDetailResponse(BaseModel):
     fundamentals: Dict[str, Any]
     is_simulated: bool = True
 
-# --- Watchlist & Portfolio Schemas ---
+
 class WatchlistItemDTO(BaseModel):
     ticker: str
     name: str
@@ -89,7 +89,7 @@ class PortfolioSummary(BaseModel):
     holdings: List[HoldingDTO]
     ai_risk_assessment: str
 
-# --- Quantitative Analytics Schemas ---
+
 class QuantRequest(BaseModel):
     tickers: List[str]
     timeframe_days: int = 252
@@ -105,14 +105,14 @@ class QuantAnalyticsResponse(BaseModel):
     correlation_matrix: CorrelationMatrixResponse
     cumulative_returns: Dict[str, List[Dict[str, Any]]]
 
-# --- Sentiment Schemas ---
+
 class SentimentRequest(BaseModel):
     text: str = Field(..., min_length=3, max_length=2000)
     ticker: Optional[str] = None
 
 class SentimentResponse(BaseModel):
     text: str
-    label: str  # Positive, Neutral, Negative
+    label: str
     score: float
     key_phrases: List[str]
     explanation: str
@@ -125,10 +125,10 @@ class SentimentDistribution(BaseModel):
     positive_pct: float
     neutral_pct: float
     negative_pct: float
-    overall_sentiment_score: float  # -1.0 to 1.0
+    overall_sentiment_score: float
     timeline: List[Dict[str, Any]]
 
-# --- RAG & Document Intelligence Schemas ---
+
 class DocumentDTO(BaseModel):
     id: int
     ticker: Optional[str]
@@ -180,7 +180,7 @@ class MetricDiff(BaseModel):
     period_b: str
     value_b: str
     change_pct: Optional[float]
-    direction: str  # increased, decreased, stable
+    direction: str
 
 class DocumentCompareResponse(BaseModel):
     doc_a_title: str
@@ -192,9 +192,9 @@ class DocumentCompareResponse(BaseModel):
     material_events: List[str]
     metrics_comparison: List[MetricDiff]
 
-# --- AI Research Assistant & Chat ---
+
 class ChatMessage(BaseModel):
-    role: str  # user, assistant, system
+    role: str
     content: str
     citations: Optional[List[Citation]] = None
     tools_called: Optional[List[str]] = None
@@ -213,17 +213,17 @@ class AIChatResponse(BaseModel):
     confidence_score: float
     disclaimer: str
 
-# --- Multi-Stage Research Agent Schemas ---
+
 class AgentTraceStep(BaseModel):
     stage: str
     description: str
-    status: str  # pending, in_progress, completed, failed
+    status: str
     findings_summary: Optional[str] = None
     duration_ms: Optional[int] = None
 
 class ResearchAgentRequest(BaseModel):
     ticker: str = Field(..., max_length=10)
-    focus_areas: Optional[List[str]] = None  # fundamentals, technicals, risks, valuation
+    focus_areas: Optional[List[str]] = None
 
 class ResearchReportDTO(BaseModel):
     id: int
@@ -237,11 +237,11 @@ class ResearchReportDTO(BaseModel):
     execution_trace: List[AgentTraceStep]
     disclaimer: str
 
-# --- Machine Learning Schemas ---
+
 class MLTrainRequest(BaseModel):
     ticker: str = "AAPL"
-    task_type: str = "directional"  # directional, volatility, regime
-    model_type: str = "random_forest"  # logistic_regression, random_forest, gradient_boosting
+    task_type: str = "directional"
+    model_type: str = "random_forest"
     test_size: float = 0.2
     prediction_horizon_days: int = 5
 
@@ -266,11 +266,11 @@ class MLExperimentDTO(BaseModel):
     metrics: MLMetrics
     created_at: datetime
 
-# --- Multimodal & Voice Schemas ---
+
 class MultimodalAnalyzeRequest(BaseModel):
     prompt: str = "Analyze this financial chart and explain key trends, support/resistance, and volume."
     image_base64: Optional[str] = None
-    image_type: str = "stock_chart"  # stock_chart, financial_table, earnings_slide
+    image_type: str = "stock_chart"
 
 class MultimodalAnalyzeResponse(BaseModel):
     analysis: str

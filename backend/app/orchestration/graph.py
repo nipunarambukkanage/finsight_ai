@@ -26,33 +26,51 @@ from backend.app.orchestration.nodes import (
 from backend.app.orchestration.routes import route_after_qa, route_after_approval
 from backend.app.approvals.service import approval_service
 from backend.app.core.logging import logger
+from backend.app.orchestration.checkpoint import local_checkpointer, local_store
 
-def build_research_graph() -> StateGraph:
-    """Constructs the compiled LangGraph StateGraph with deterministic gates."""
+def _node_adapter(node):
+    """Adapt the domain's Pydantic state nodes to LangGraph update semantics."""
+    async def wrapped(state):
+        current = state if isinstance(state, WorkflowState) else WorkflowState.model_validate(state)
+        updated = await node(current)
+        return updated.model_dump()
+    return wrapped
+
+
+def _qa_route(state) -> str:
+    return route_after_qa(state if isinstance(state, WorkflowState) else WorkflowState.model_validate(state))
+
+
+def _approval_route(state) -> str:
+    return route_after_approval(state if isinstance(state, WorkflowState) else WorkflowState.model_validate(state))
+
+
+def build_research_graph(checkpointer=None, store=None):
+    """Construct and compile the LangGraph with deterministic domain gates."""
     builder = StateGraph(WorkflowState)
 
-    # Register Nodes
-    builder.add_node("market_data", market_data_node)
-    builder.add_node("research", research_node)
-    builder.add_node("strategy", strategy_node)
-    builder.add_node("developer", developer_node)
-    builder.add_node("qa", qa_node)
-    builder.add_node("backtest", backtest_node)
-    builder.add_node("approval", human_approval_node)
-    builder.add_node("shadow_trading", shadow_trading_node)
-    builder.add_node("recommendation", recommendation_node)
 
-    # Sequential Edges
+    builder.add_node("market_data", _node_adapter(market_data_node))
+    builder.add_node("research", _node_adapter(research_node))
+    builder.add_node("strategy", _node_adapter(strategy_node))
+    builder.add_node("developer", _node_adapter(developer_node))
+    builder.add_node("qa", _node_adapter(qa_node))
+    builder.add_node("backtest", _node_adapter(backtest_node))
+    builder.add_node("approval", _node_adapter(human_approval_node))
+    builder.add_node("shadow_trading", _node_adapter(shadow_trading_node))
+    builder.add_node("recommendation", _node_adapter(recommendation_node))
+
+
     builder.add_edge(START, "market_data")
     builder.add_edge("market_data", "research")
     builder.add_edge("research", "strategy")
     builder.add_edge("strategy", "developer")
     builder.add_edge("developer", "qa")
 
-    # Deterministic Gate: QA Validation
+
     builder.add_conditional_edges(
         "qa",
-        route_after_qa,
+        _qa_route,
         {
             "backtest": "backtest",
             "qa_failed": END
@@ -61,10 +79,10 @@ def build_research_graph() -> StateGraph:
 
     builder.add_edge("backtest", "approval")
 
-    # Deterministic Gate: Human Approval
+
     builder.add_conditional_edges(
         "approval",
-        route_after_approval,
+        _approval_route,
         {
             "shadow_trading": "shadow_trading",
             "replan_strategy": "strategy",
@@ -76,43 +94,64 @@ def build_research_graph() -> StateGraph:
     builder.add_edge("shadow_trading", "recommendation")
     builder.add_edge("recommendation", END)
 
-    return builder.compile()
+    return builder.compile(checkpointer=checkpointer, store=store)
 
 class WorkflowEngine:
     """Manages active workflows, checkpoints, event streaming, and human resumption."""
 
     def __init__(self):
-        self.graph = build_research_graph()
+
+
+
+        self.checkpointer = local_checkpointer()
+        self.store = local_store()
+        self.graph = build_research_graph(self.checkpointer, self.store)
         self.workflows: Dict[str, WorkflowState] = {}
         logger.info("Initialized LangGraph Research Workflow Engine.")
 
-    async def start_workflow(self, ticker: str, workflow_id: Optional[str] = None) -> WorkflowState:
+    async def start_workflow(self, ticker: str, workflow_id: Optional[str] = None, owner_id: str = "demo_analyst") -> WorkflowState:
         """Starts a new stateful workflow. Runs Phase 1 up to Human Approval pause."""
         wid = workflow_id or f"wf-{uuid.uuid4().hex[:8]}"
         state = WorkflowState(
             workflow_id=wid,
             run_id=f"run-{uuid.uuid4().hex[:6]}",
             ticker=ticker.upper(),
+            owner_id=owner_id,
             status="RUNNING",
             stage="init"
         )
         self.workflows[wid] = state
         logger.info(f"Initiated workflow {wid} for {ticker}")
 
-        # Execute Phase 1 nodes sequentially up to human approval
-        state = await market_data_node(state)
-        state = await research_node(state)
-        state = await strategy_node(state)
-        state = await developer_node(state)
-        state = await qa_node(state)
 
-        if not state.qa_results.passed:
-            state.status = "FAILED"
-            self.workflows[wid] = state
-            return state
 
-        state = await backtest_node(state)
-        state = await human_approval_node(state)
+
+        try:
+            result = await self.graph.ainvoke(
+                state.model_dump(),
+                config={"configurable": {"thread_id": wid}},
+            )
+            state = WorkflowState.model_validate(result)
+        except Exception as exc:
+
+
+
+
+            logger.exception("Compiled graph failed for %s; using domain-node compatibility path", wid)
+            try:
+                state = await market_data_node(state)
+                state = await research_node(state)
+                state = await strategy_node(state)
+                state = await developer_node(state)
+                state = await qa_node(state)
+                if state.qa_results and state.qa_results.passed:
+                    state = await backtest_node(state)
+                    state = await human_approval_node(state)
+                else:
+                    state.status = "FAILED"
+            except Exception as fallback_exc:
+                state.status = "FAILED"
+                state.error_message = f"Compiled graph: {exc}; compatibility path: {fallback_exc}"
 
         self.workflows[wid] = state
         return state
@@ -132,7 +171,7 @@ class WorkflowEngine:
         if state.status != "WAITING_APPROVAL":
             raise ValueError(f"Workflow is in '{state.status}' state, not waiting for approval.")
 
-        # Process approval record
+
         if state.approval_record:
             appr_dec = ApprovalDecision(decision.upper())
             approval_service.process_decision(
@@ -152,7 +191,7 @@ class WorkflowEngine:
             self.workflows[workflow_id] = state
             return state
 
-        # Phase 2: Shadow trading -> Final recommendation
+
         state.status = "RUNNING"
         state = await shadow_trading_node(state)
         state = await recommendation_node(state)
@@ -182,7 +221,7 @@ class WorkflowEngine:
             yield f"data: {json.dumps(step)}\n\n"
             await asyncio.sleep(0.05)
 
-        # Send current snapshot
+
         yield f"event: snapshot\ndata: {json.dumps(state.model_dump(), default=str)}\n\n"
 
 workflow_engine = WorkflowEngine()

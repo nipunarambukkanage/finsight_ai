@@ -1,0 +1,8 @@
+# Reflection
+
+The project is organized as a modular monolith with typed domain contracts and thin API, notebook, and graph adapters. I selected LangGraph for stateful agent execution, PostgreSQL/pgvector for durable operational state and evidence retrieval, and Parquet with Polars/DuckDB for historical market data. A model gateway keeps provider choice outside agent code, while role-restricted tools and explicit data provenance prevent an LLM from acquiring financial or operating-system authority.
+
+For the assessment, I separated the three deliverables so each can be executed independently and audited. Task 1 uses first-principles technical indicators and Pydantic-validated reasoning. Task 2 treats exact evidence quotation and abstention as first-class metrics, uses source-disjoint splits, and records QLoRA configuration and losses. Task 3 demonstrates observation-driven routing, a typed multi-agent handoff, one critique cycle, persistent cache reuse, and a JSONL tool trace.
+
+With more time I would run the teacher generation and QLoRA notebook on a fresh Colab GPU, publish the merged model, and replace all fixture trace lines with captured live executions. I would also complete the PostgreSQL checkpointer adapter, migrate the existing Vite interface to Next.js, and add end-to-end Playwright coverage. The free-tier constraint means live market/news availability, model quotas, and GPU sessions remain external variables; every such limitation is recorded rather than hidden behind fabricated evidence. The application is decision-support software and has no brokerage execution path.
+

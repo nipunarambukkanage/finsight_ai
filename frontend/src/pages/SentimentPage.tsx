@@ -53,7 +53,7 @@ export const SentimentPage: React.FC = () => {
     <div id="sentiment-page" className="page-wrapper">
       <DisclaimerBanner />
 
-      {/* Header */}
+
       <div style={{ marginBottom: '24px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{ width: '32px', height: '32px', borderRadius: 'var(--radius-sm)', background: 'linear-gradient(135deg, var(--accent-cyan), var(--accent-blue))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -68,7 +68,7 @@ export const SentimentPage: React.FC = () => {
         </p>
       </div>
 
-      {/* Main Analysis Input */}
+
       <div className="glass-card" style={{ marginBottom: '24px' }}>
         <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '12px' }}>Analyze Financial Commentary</h2>
 
@@ -84,7 +84,7 @@ export const SentimentPage: React.FC = () => {
           />
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
-            {/* Quick headline buttons */}
+
             <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '11px', color: 'var(--text-muted)', alignSelf: 'center' }}>Samples:</span>
               {sampleHeadlines.map((h, i) => (
@@ -112,7 +112,7 @@ export const SentimentPage: React.FC = () => {
           </div>
         </form>
 
-        {/* Classification Result Card */}
+
         {result && (
           <div
             id="sentiment-result-card"
@@ -151,7 +151,7 @@ export const SentimentPage: React.FC = () => {
               {result.explanation}
             </div>
 
-            {/* Key Phrases */}
+
             <div>
               <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginBottom: '6px' }}>
                 IDENTIFIED FINANCIAL PHRASES & DRIVERS:
@@ -168,7 +168,7 @@ export const SentimentPage: React.FC = () => {
         )}
       </div>
 
-      {/* Aggregate Sentiment Distribution & Timeline */}
+
       <div className="grid-12">
         <div className="col-6 glass-card">
           <h2 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Market Sentiment Distribution</h2>

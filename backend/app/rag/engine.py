@@ -10,14 +10,16 @@ Implements end-to-end Retrieval-Augmented Generation for financial reports:
 
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
-import io
 from datetime import datetime, timezone
 from backend.app.models.schemas import (
     DocumentDTO, Citation, RAGQueryRequest, RAGQueryResponse
 )
 from backend.app.rag.sample_documents import SAMPLE_FINANCIAL_DOCUMENTS
-from backend.app.providers.manager import provider_manager
+from backend.app.providers.gateway import ModelRequest, model_gateway
+from backend.app.config import settings
 from backend.app.core.logging import logger
+from backend.app.rag.embeddings import embedding_service
+from backend.app.core.telemetry import record
 import hashlib
 import re
 
@@ -59,7 +61,7 @@ class ChunkRecord:
         self.ticker = ticker
         self.page = page
         self.chunk_idx = chunk_idx
-        # Sanitize against prompt-injection
+
         self.content = PromptInjectionFilter.sanitize(content)
         self.embedding = np.array(embedding, dtype=np.float32)
         self.filing_type = filing_type
@@ -73,6 +75,7 @@ class RAGKnowledgeEngine:
     def __init__(self):
         self.documents: Dict[int, DocumentDTO] = {}
         self.chunks: List[ChunkRecord] = []
+        self.embedding_unavailable = False
         self._next_doc_id = 1
         self._initialize_seed_documents()
 
@@ -95,11 +98,14 @@ class RAGKnowledgeEngine:
             )
             self.documents[doc_id] = doc_dto
 
-            # Extract chunks and generate embeddings
+
             raw_chunks = sample["chunks"]
             texts = [c["content"] for c in raw_chunks]
-            provider = provider_manager.get_provider()
-            embeddings = provider._generate_synthetic_embeddings(texts)
+            try:
+                embeddings = embedding_service.embed(texts)
+            except RuntimeError:
+                self.embedding_unavailable = True
+                embeddings = [[0.0] * 384 for _ in texts]
 
             for i, c in enumerate(raw_chunks):
                 record = ChunkRecord(
@@ -121,30 +127,45 @@ class RAGKnowledgeEngine:
 
     def search_chunks(self, query: str, ticker: Optional[str] = None, top_k: int = 4) -> List[Tuple[ChunkRecord, float]]:
         """Dense semantic search across document chunks using cosine similarity."""
-        provider = provider_manager.get_provider()
-        q_vec = np.array(provider._generate_synthetic_embeddings([query])[0], dtype=np.float32)
+        if self.embedding_unavailable:
+            raise RuntimeError("Sentence Transformer embeddings are unavailable")
+        q_vec = np.array(embedding_service.embed([query])[0], dtype=np.float32)
         q_norm = np.linalg.norm(q_vec)
         if q_norm > 0:
             q_vec = q_vec / q_norm
 
         scored: List[Tuple[ChunkRecord, float]] = []
+        query_terms = {term for term in re.findall(r"[a-z0-9]+", query.lower()) if len(term) > 2}
         for chunk in self.chunks:
-            # Filter by ticker if specified
+
             if ticker and chunk.ticker and chunk.ticker.upper() != ticker.upper():
                 continue
-            
+
             c_norm = np.linalg.norm(chunk.embedding)
-            sim = float(np.dot(q_vec, chunk.embedding) / (c_norm * q_norm + 1e-9))
-            scored.append((chunk, sim))
+            semantic = float(np.dot(q_vec, chunk.embedding) / (c_norm * q_norm + 1e-9))
+            chunk_terms = set(re.findall(r"[a-z0-9]+", chunk.content.lower()))
+            lexical = len(query_terms & chunk_terms) / max(1, len(query_terms))
+
+
+            scored.append((chunk, 0.75 * semantic + 0.25 * lexical))
 
         scored.sort(key=lambda x: x[1], reverse=True)
+        record("retrieval", "search_chunks", attributes={"ticker": ticker, "candidate_count": len(scored), "top_k": top_k, "embedding_mode": embedding_service.mode})
         return scored[:top_k]
 
     async def query(self, req: RAGQueryRequest) -> RAGQueryResponse:
         """Execute full RAG workflow: Retrieve -> Rank -> Grounded Synthesis -> Attach Citations."""
-        results = self.search_chunks(req.query, ticker=req.ticker, top_k=req.top_k)
+        try:
+            results = self.search_chunks(req.query, ticker=req.ticker, top_k=req.top_k)
+        except RuntimeError as exc:
+            return RAGQueryResponse(
+                query=req.query,
+                answer=f"UNCERTAINTY NOTICE: Evidence retrieval is unavailable ({exc}). No unsupported answer was generated.",
+                citations=[], evidence_coverage=0.0, is_demo_provider=False,
+                disclaimer="DATA LIMITATION: Provision Sentence Transformer embeddings before using live retrieval.",
+            )
 
-        # Uncertainty handling if evidence is missing or entirely ungrounded
+
         if not results or results[0][1] <= 0.0:
             return RAGQueryResponse(
                 query=req.query,
@@ -192,17 +213,27 @@ class RAGKnowledgeEngine:
             "If the information is not contained in the context, clearly acknowledge data limitations."
         )
 
-        provider = provider_manager.get_provider()
-        answer = await provider.generate(prompt, context=context_text)
+        answer, telemetry = await model_gateway.generate(
+            prompt,
+            request=ModelRequest(
+                task_type="grounded_research_synthesis",
+                complexity="medium",
+                allow_demo_fallback=settings.DEMO_MODE,
+            ),
+        )
+        answer = str(answer)
 
-        evidence_coverage = 0.94 if citations else 0.0
+        similarity_mean = sum(max(0.0, min(1.0, citation.similarity_score)) for citation in citations) / len(citations) if citations else 0.0
+
+
+        evidence_coverage = round(0.95 * min(1.0, len(citations) / max(1, req.top_k)) + 0.05 * similarity_mean, 3) if citations else 0.0
 
         return RAGQueryResponse(
             query=req.query,
             answer=answer,
             citations=citations,
             evidence_coverage=evidence_coverage,
-            is_demo_provider=True,
+            is_demo_provider=telemetry.get("provider") in {"DEMO", "DEMO_FALLBACK"},
             disclaimer=(
                 "Disclaimer: FinSight AI is a research and demonstration platform. Information generated by the system "
                 "does not constitute financial advice and should not be considered a recommendation to buy or sell securities."
@@ -214,7 +245,7 @@ class RAGKnowledgeEngine:
         doc_id = self._next_doc_id
         self._next_doc_id += 1
 
-        # Chunk text (800 chars with 150 char overlap)
+
         chunk_size = 800
         overlap = 150
         chunks = []
@@ -228,8 +259,7 @@ class RAGKnowledgeEngine:
             if start >= len(text):
                 break
 
-        provider = provider_manager.get_provider()
-        embeddings = provider._generate_synthetic_embeddings(chunks)
+        embeddings = embedding_service.embed(chunks)
 
         for i, chunk_text in enumerate(chunks):
             record = ChunkRecord(

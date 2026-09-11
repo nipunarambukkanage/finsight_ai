@@ -19,8 +19,8 @@ class SensitiveDataFilter(logging.Filter):
 def setup_logging(log_level: str = "INFO") -> logging.Logger:
     logger = logging.getLogger("finsight")
     logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    
-    # Avoid duplicate handlers
+
+
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
         formatter = logging.Formatter(
@@ -30,7 +30,7 @@ def setup_logging(log_level: str = "INFO") -> logging.Logger:
         handler.setFormatter(formatter)
         handler.addFilter(SensitiveDataFilter())
         logger.addHandler(handler)
-        
+
     return logger
 
 logger = setup_logging()

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from contextlib import asynccontextmanager
 import time
 import uuid
@@ -8,8 +8,9 @@ import uuid
 from backend.app.config import settings
 from backend.app.core.logging import logger
 from backend.app.database.session import init_db
+from backend.app.core.telemetry import begin_trace, record
 
-# Routers
+
 from backend.app.api.v1.auth import router as auth_router
 from backend.app.api.v1.stocks import router as stocks_router
 from backend.app.api.v1.analytics import router as analytics_router
@@ -27,6 +28,8 @@ from backend.app.api.v1.workflows import router as workflows_router
 from backend.app.api.v1.approvals import router as approvals_router
 from backend.app.api.v1.strategies import router as strategies_router
 from backend.app.api.v1.system import router as system_router
+from backend.app.api.v1.runs import router as runs_router
+from backend.app.api.v1.assessment import router as assessment_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,7 +43,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title=settings.APP_NAME,
-    version="1.0.0",
+    version="2.0.0",
     description=(
         "FinSight AI: Generative AI Investment Intelligence & Stock Research Platform.\n\n"
         "**Regulatory Disclaimer:** FinSight AI is a research and demonstration platform. "
@@ -52,30 +55,35 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# CORS configuration
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Permits localhost and container cross-origin calls
+    allow_origins=settings.BACKEND_CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Request ID & Latency Telemetry Middleware
+
 @app.middleware("http")
 async def add_process_time_and_request_id(request: Request, call_next):
-    req_id = str(uuid.uuid4())
+    req_id = begin_trace(str(uuid.uuid4()))
     request.state.request_id = req_id
     start_time = time.time()
-    
-    response = await call_next(request)
-    
+
+    try:
+        response = await call_next(request)
+        record("api", request.method, duration_ms=(time.time() - start_time) * 1000.0, attributes={"path": request.url.path, "status_code": response.status_code})
+    except Exception:
+        record("api", request.method, status="error", duration_ms=(time.time() - start_time) * 1000.0, attributes={"path": request.url.path})
+        raise
+
     process_time = (time.time() - start_time) * 1000.0
     response.headers["X-Request-ID"] = req_id
     response.headers["X-Process-Time-Ms"] = f"{process_time:.2f}"
     return response
 
-# Global Exception Handler
+
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     logger.error(f"Unhandled error on {request.url.path}: {str(exc)}", exc_info=True)
@@ -88,13 +96,13 @@ async def global_exception_handler(request: Request, exc: Exception):
         }
     )
 
-# Root & Health Check Endpoints
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     return {
         "status": "operational",
         "app_name": settings.APP_NAME,
-        "version": "1.0.0",
+        "version": "2.0.0",
         "demo_mode": settings.DEMO_MODE,
         "provider": settings.DEFAULT_LLM_PROVIDER,
         "disclaimer": "FinSight AI is a research and demonstration platform."
@@ -109,7 +117,17 @@ async def root():
         "version": "v1"
     }
 
-# Register V1 API Routers
+
+@app.get("/metrics", include_in_schema=False)
+async def metrics():
+    """Expose Prometheus metrics when the optional observability profile is installed."""
+    try:
+        from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+    except ImportError as exc:
+        return JSONResponse(status_code=503, content={"detail": f"Prometheus profile is not installed: {exc}"})
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 api_v1 = settings.API_V1_STR
 app.include_router(auth_router, prefix=f"{api_v1}/auth", tags=["Authentication"])
 app.include_router(stocks_router, prefix=f"{api_v1}/stocks", tags=["Stocks & Market Data"])
@@ -128,6 +146,8 @@ app.include_router(workflows_router, prefix=f"{api_v1}/workflows", tags=["Autono
 app.include_router(approvals_router, prefix=f"{api_v1}/approvals", tags=["Human Approvals"])
 app.include_router(strategies_router, prefix=f"{api_v1}/strategies", tags=["Strategies & Shadow Trading"])
 app.include_router(system_router, prefix=f"{api_v1}/system", tags=["System Diagnostics"])
+app.include_router(runs_router, prefix=f"{api_v1}/runs", tags=["Durable Workflow Runs"])
+app.include_router(assessment_router, prefix=f"{api_v1}/assessment", tags=["Assessment Interfaces"])
 
 if __name__ == "__main__":
     import uvicorn

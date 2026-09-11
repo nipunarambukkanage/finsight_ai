@@ -1,13 +1,14 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Dict, Any
 from backend.app.models.schemas import QuantRequest, QuantAnalyticsResponse, CorrelationMatrixResponse
 from backend.app.services.market_data import market_data_service
 from backend.app.analytics.engine import QuantitativeAnalyticsEngine
+from backend.app.core.security import get_current_user, TokenPayload
 
 router = APIRouter()
 
 @router.post("/calculate", response_model=QuantAnalyticsResponse)
-async def calculate_quant_analytics(req: QuantRequest):
+async def calculate_quant_analytics(req: QuantRequest, user: TokenPayload = Depends(get_current_user)):
     """Compute risk statistics, correlation matrix, and cumulative returns across selected tickers."""
     tickers = [t.upper() for t in req.tickers]
     metrics_dict = {}

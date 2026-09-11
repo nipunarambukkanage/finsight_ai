@@ -31,11 +31,11 @@ async def test_multi_stage_research_agent():
     assert report.ticker == "NVDA"
     assert "Institutional Investment Intelligence Brief" in report.title
     assert len(report.execution_trace) == 8
-    # Verify all 8 stages completed
+
     for step in report.execution_trace:
         assert step.status == "completed"
         assert step.findings_summary is not None
-    
+
     assert "Bull Case" in report.full_markdown
     assert "Base Case" in report.full_markdown
     assert "Bear Case" in report.full_markdown

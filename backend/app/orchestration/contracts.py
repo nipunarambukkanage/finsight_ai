@@ -103,7 +103,7 @@ class ApprovalRecord(BaseModel):
 class ShadowSimulationResult(BaseModel):
     simulation_id: str
     strategy_id: str
-    status: str = "ACTIVE"  # ACTIVE, PAUSED, COMPLETED
+    status: str = "ACTIVE"
     virtual_portfolio: Dict[str, Any] = Field(default_factory=dict)
     hypothetical_orders: List[Dict[str, Any]] = Field(default_factory=list)
     simulated_fills: List[Dict[str, Any]] = Field(default_factory=list)

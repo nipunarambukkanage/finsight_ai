@@ -16,7 +16,7 @@ async def test_health_and_root():
 async def test_stocks_api():
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        # List stocks
+
         res = await client.get("/api/v1/stocks/")
         assert res.status_code == 200
         stocks = res.json()
@@ -26,7 +26,7 @@ async def test_stocks_api():
         assert "MSFT" in tickers
         assert "NVDA" in tickers
 
-        # Get single stock detail
+
         res_detail = await client.get("/api/v1/stocks/AAPL")
         assert res_detail.status_code == 200
         detail = res_detail.json()

@@ -14,7 +14,7 @@ from backend.app.analytics.engine import QuantitativeAnalyticsEngine
 class PortfolioIntelligenceService:
 
     def __init__(self):
-        # Seeded institutional model portfolio
+
         self.default_holdings = [
             {"ticker": "AAPL", "shares": 1200.0, "average_cost": 195.00},
             {"ticker": "MSFT", "shares": 850.0, "average_cost": 380.00},
@@ -56,16 +56,16 @@ class PortfolioIntelligenceService:
                 market_value=round(mkt_val, 2),
                 unrealized_pl=round(unrealized, 2),
                 unrealized_pl_pct=round(unrealized_pct, 2),
-                allocation_pct=0.0  # calculated below
+                allocation_pct=0.0
             ))
 
         total_value = invested_val + self.cash_balance
 
-        # Calculate allocation percentages
+
         for h_dto in holdings_dto:
             h_dto.allocation_pct = round((h_dto.market_value / total_value) * 100.0, 1)
 
-        # Convert sector values to percentages
+
         sector_allocation = {
             sec: round((val / total_value) * 100.0, 1)
             for sec, val in sector_weights.items()

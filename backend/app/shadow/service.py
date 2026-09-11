@@ -38,7 +38,7 @@ class ShadowTradingService:
             "simulation_id": sim_id,
             "strategy_id": strategy_id,
             "ticker": ticker.upper(),
-            "status": "ACTIVE",  # ACTIVE, PAUSED, COMPLETED
+            "status": "ACTIVE",
             "approved_by": approved_by,
             "virtual_cash": initial_cash,
             "virtual_shares": 0.0,
@@ -81,7 +81,7 @@ class ShadowTradingService:
         self,
         simulation_id: str,
         current_price: float,
-        signal: int,  # 1 (Buy/Long), 0 (Exit/Cash)
+        signal: int,
         slippage_bps: float = 3.0,
         cost_bps: float = 5.0
     ) -> ShadowSimulationResult:
@@ -96,7 +96,7 @@ class ShadowTradingService:
         ticker = sim["ticker"]
         now_ts = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
 
-        # Long Signal & No Position -> Generate Hypothetical BUY Order
+
         if signal > 0 and sim["virtual_shares"] == 0:
             target_alloc = sim["virtual_cash"] * 0.90
             fill_price = current_price * (1.0 + (slippage_bps / 10000.0))
@@ -133,7 +133,7 @@ class ShadowTradingService:
                 sim["total_costs"] += costs
                 sim["total_slippage"] += slip
 
-        # Exit Signal & Holding Position -> Generate Hypothetical SELL Order
+
         elif signal <= 0 and sim["virtual_shares"] > 0:
             shares = sim["virtual_shares"]
             fill_price = current_price * (1.0 - (slippage_bps / 10000.0))
@@ -167,7 +167,7 @@ class ShadowTradingService:
             sim["total_costs"] += costs
             sim["total_slippage"] += slip
 
-        # Update unrealized & total P&L
+
         pos_val = sim["virtual_shares"] * current_price
         total_equity = sim["virtual_cash"] + pos_val
         sim["unrealized_pnl"] = pos_val

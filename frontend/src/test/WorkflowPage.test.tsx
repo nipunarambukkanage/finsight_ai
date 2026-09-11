@@ -6,16 +6,16 @@ import { WorkflowPage } from '../pages/WorkflowPage';
 describe('WorkflowPage Component', () => {
   it('renders institutional workflow header and regulatory disclaimer', () => {
     render(<WorkflowPage />);
-    
-    // Page Title
+
+
     expect(screen.getByText(/Autonomous Research & Strategy Workflow Hub/i)).toBeDefined();
     expect(screen.getAllByText(/LangGraph/i).length).toBeGreaterThan(0);
-    
-    // Regulatory disclaimer
+
+
     expect(screen.getByText(/Regulatory Notice:/i)).toBeDefined();
     expect(screen.getByText(/No live money trading is executed/i)).toBeDefined();
 
-    // Key Stage labels
+
     expect(screen.getByText(/1. Market Data/i)).toBeDefined();
     expect(screen.getByText(/4. Dev Agent/i)).toBeDefined();
     expect(screen.getByText(/5. QA Agent/i)).toBeDefined();
@@ -23,7 +23,7 @@ describe('WorkflowPage Component', () => {
     expect(screen.getByText(/7. Approval Gate/i)).toBeDefined();
     expect(screen.getByText(/8. Shadow Mode/i)).toBeDefined();
 
-    // Primary action button
+
     expect(screen.getByText(/Initiate Autonomous Workflow/i)).toBeDefined();
   });
 });
