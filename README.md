@@ -7,9 +7,13 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Docker](https://img.shields.io/badge/Docker-Multi--Stage-2496ED.svg?logo=docker&logoColor=white)](https://www.docker.com/)
 [![AWS Fargate](https://img.shields.io/badge/AWS-ECS%20Fargate%20%7C%20Bedrock-FF9900.svg?logo=amazon-aws&logoColor=white)](https://aws.amazon.com/)
+[![MSc research project](https://img.shields.io/badge/MSc%20research-WorldQuant%20University-6f42c1.svg)](https://www.wqu.edu/)
+[![Local demo cost](https://img.shields.io/badge/local%20demo-cost%20%240-success.svg)](#explicit-zero-credential-institutional-demo-mode)
 [![Verification](https://img.shields.io/badge/verification-rerun%20locally-blue.svg)](#testing--verification)
 
 > **Enterprise FinTech Reference Platform**: A commercial-grade investment intelligence application combining Generative AI, multi-provider LLM orchestration, verifiable SEC filing RAG, multi-stage autonomous research agents, Wall Street quantitative analytics, non-anticipative time-series machine learning, multimodal chart vision, and Voice AI.
+
+> **Academic context:** FinSight AI is my MSc research project for the **MSc. in Financial Engineering at WorldQuant University**. The project studies how quantitative finance, grounded document retrieval, language models, and bounded agent workflows can work together in a transparent research environment.
 
 ## Assessment-ready deliverables
 
@@ -21,6 +25,33 @@ assessment domains:
 - `task3_agentic/`: five authorized tools, observation-driven routing, typed two-agent critique handoff, persistent cache, and `agent_trace.jsonl`.
 
 See [docs/assessment-evidence.md](docs/assessment-evidence.md), [CITATIONS.md](CITATIONS.md), and [REFLECTION.md](REFLECTION.md). Run the assessment paths from [docs/runbook.md](docs/runbook.md) and follow the final [submission runbook](docs/submission-runbook.md). The local five-minute video guide is intentionally excluded from version control. Live provider and Colab outputs must be regenerated before submission; fixture outputs are explicitly labelled and are not live evidence.
+
+## Product preview
+
+These screenshots were captured from the running local Docker demo. They show the main research dashboard, the AAPL market workspace, and the LangGraph workflow hub. The interface labels simulated data clearly, so the preview is easy to reproduce without paid API keys.
+
+<p align="center">
+  <img src="docs/screenshots/dashboard.jpg" alt="FinSight AI financial intelligence dashboard" width="100%">
+</p>
+
+<p align="center"><strong>Financial Intelligence Dashboard</strong><br><em>Executive briefing, watchlist, sentiment, and grounded filing highlights.</em></p>
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/stocks-markets.jpg" alt="FinSight AI stocks and markets workspace" width="100%">
+      <strong>Stocks &amp; Markets</strong><br>
+      <em>Price cards, valuation, candlesticks, volume, and range analysis.</em>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/autonomous-workflow.jpg" alt="FinSight AI autonomous research workflow hub" width="100%">
+      <strong>Autonomous Workflow Hub</strong><br>
+      <em>Stateful LangGraph stages from market data through approval and reporting.</em>
+    </td>
+  </tr>
+</table>
+
+> **Try the same demo locally:** run `docker compose up -d --build`, then open [localhost:5173](http://localhost:5173). The API and interactive documentation are available at [localhost:18000/docs](http://localhost:18000/docs).
 
 ---
 
