@@ -94,6 +94,60 @@ workflow in a few clicks.
   </tr>
 </table>
 
+### Platform controls and research depth
+
+The remaining workspaces make the application useful beyond a single equity
+brief. Document Intelligence compares filing versions, the RAG Explorer exposes
+retrieved evidence, and Portfolio Intelligence connects holdings to risk. The
+ML, multimodal, voice, and provider views make model behavior and operational
+boundaries easy to inspect during a review.
+
+<table>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/documents-intelligence.jpg" alt="FinSight AI document intelligence and filing comparison" width="100%">
+      <strong>Document Intelligence</strong><br>
+      <em>Indexed SEC filings, PDF ingestion, and side-by-side disclosure audits.</em>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/rag-explorer.jpg" alt="FinSight AI RAG vector knowledge explorer" width="100%">
+      <strong>RAG Knowledge Explorer</strong><br>
+      <em>Query the filing corpus and inspect grounded synthesis with citations.</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/portfolio-intelligence.jpg" alt="FinSight AI portfolio intelligence and risk architecture" width="100%">
+      <strong>Portfolio Intelligence</strong><br>
+      <em>Allocation, concentration, holdings, and AI risk-advisor context.</em>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/ml-lab.jpg" alt="FinSight AI responsible time-series machine learning lab" width="100%">
+      <strong>Responsible ML Lab</strong><br>
+      <em>Chronological train/test controls with explicit look-ahead safeguards.</em>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/multimodal-vision.jpg" alt="FinSight AI multimodal financial intelligence workspace" width="100%">
+      <strong>Multimodal Vision</strong><br>
+      <em>Chart, table, and earnings-slide analysis with a visible prompt boundary.</em>
+    </td>
+    <td width="50%" align="center">
+      <img src="docs/screenshots/voice-briefing.jpg" alt="FinSight AI voice financial assistant and audio briefing" width="100%">
+      <strong>Voice Briefing</strong><br>
+      <em>Browser speech controls and an executive watchlist briefing script.</em>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center">
+      <img src="docs/screenshots/settings-providers.jpg" alt="FinSight AI system settings and provider failover architecture" width="100%">
+      <strong>Provider and Runtime Settings</strong><br>
+      <em>Zero-credential demo mode, optional model providers, and failover boundaries.</em>
+    </td>
+  </tr>
+</table>
+
 > **Try the same demo locally:** run `docker compose up -d --build`, then open [localhost:5173](http://localhost:5173). The API and interactive documentation are available at [localhost:18000/docs](http://localhost:18000/docs).
 
 ---
@@ -303,6 +357,19 @@ cd frontend
 npm test
 ```
 **Historical baseline** (from an earlier repository revision): 4 component suites were reported as passing. Rerun after `npm ci` for current evidence.
+
+### Browser End-to-End Suite (Playwright)
+```bash
+cd frontend
+npx playwright install chromium
+npm run test:e2e
+```
+The browser matrix visits every registered workspace, both stock route forms,
+all sidebar links, and the key client controls for theme switching, stock
+analysis tabs, filing upload feedback, RAG prompts, provider selection, and
+multimodal targets. The latest local run completed with **25 tests passed**.
+GitHub Actions installs Chromium and runs the same suite on every pull request
+and push.
 
 ### Production Build Verification
 ```bash
