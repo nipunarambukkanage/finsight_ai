@@ -11,9 +11,8 @@ The current local branch is `main` and its remote is:
 https://github.com/nipunarambukkanage/finsight_ai.git
 ```
 
-The changes are local and currently uncommitted. `git status` shows modified
-tracked files and new assessment files. They will not appear on GitHub until
-they are committed and pushed:
+GitHub only shows commits that have been pushed. Use `git status` to see local
+work, then review and publish it with:
 
 ```powershell
 Set-Location C:\Users\Admin\NSR\cdazz\finsight_ai
