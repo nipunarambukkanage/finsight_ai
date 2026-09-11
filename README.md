@@ -13,7 +13,9 @@
 
 > **Enterprise FinTech Reference Platform**: A commercial-grade investment intelligence application combining Generative AI, multi-provider LLM orchestration, verifiable SEC filing RAG, multi-stage autonomous research agents, Wall Street quantitative analytics, non-anticipative time-series machine learning, multimodal chart vision, and Voice AI.
 
-> **Academic context:** FinSight AI is my MSc research project for the **MSc. in Financial Engineering at WorldQuant University**. The project studies how quantitative finance, grounded document retrieval, language models, and bounded agent workflows can work together in a transparent research environment.
+### MSc. in Financial Engineering at WorldQuant University
+
+FinSight AI is my MSc research project for the **MSc. in Financial Engineering at WorldQuant University**. The project studies how quantitative finance, grounded document retrieval, language models, and bounded agent workflows can work together in a transparent research environment.
 
 ## Assessment-ready deliverables
 
