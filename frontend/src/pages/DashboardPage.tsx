@@ -49,6 +49,7 @@ export const DashboardPage: React.FC = () => {
 
 
       <div
+        className="dashboard-header"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -59,6 +60,10 @@ export const DashboardPage: React.FC = () => {
         }}
       >
         <div>
+          <div className="dashboard-eyebrow">
+            <span className="dashboard-eyebrow-dot" />
+            Research workbench · zero-credential demo
+          </div>
           <h1 style={{ fontSize: '24px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
             Financial Intelligence Dashboard
           </h1>
@@ -86,9 +91,16 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
+      <div className="dashboard-status-strip" aria-label="Workspace status">
+        <span><Activity size={13} /> Market snapshot synced</span>
+        <span><ShieldAlert size={13} /> Evidence guard active</span>
+        <span><Cpu size={13} /> Demo provider ready</span>
+        <span className="dashboard-status-spacer" />
+        <span className="dashboard-status-time">Last refresh · just now</span>
+      </div>
 
       <div className="grid-12" style={{ marginBottom: '24px' }}>
-        <div className="col-3 glass-card">
+        <div className="col-3 glass-card dashboard-metric dashboard-metric-cyan">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
             S&P 500 Benchmark (SPY)
           </div>
@@ -99,7 +111,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="col-3 glass-card">
+        <div className="col-3 glass-card dashboard-metric dashboard-metric-blue">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
             Portfolio Total Value
           </div>
@@ -112,7 +124,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="col-3 glass-card">
+        <div className="col-3 glass-card dashboard-metric dashboard-metric-amber">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
             Macro Volatility (VIX)
           </div>
@@ -123,7 +135,7 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="col-3 glass-card">
+        <div className="col-3 glass-card dashboard-metric dashboard-metric-emerald">
           <div style={{ color: 'var(--text-muted)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
             Market Sentiment Index
           </div>
@@ -140,7 +152,7 @@ export const DashboardPage: React.FC = () => {
 
       <div className="grid-12" style={{ marginBottom: '24px' }}>
 
-        <div className="col-8 glass-card">
+        <div className="col-8 glass-card dashboard-briefing-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div
@@ -219,7 +231,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
 
-        <div className="col-4 glass-card">
+        <div className="col-4 glass-card dashboard-watchlist-card">
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
             <h2 style={{ fontSize: '16px', fontWeight: 700 }}>Core Coverage Watchlist</h2>
             <button
@@ -285,7 +297,7 @@ export const DashboardPage: React.FC = () => {
       </div>
 
 
-      <div className="glass-card">
+      <div className="glass-card dashboard-filings-card">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <FileText size={18} color="var(--accent-cyan)" />
