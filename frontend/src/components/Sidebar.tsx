@@ -105,7 +105,10 @@ export const Sidebar: React.FC = () => {
       </div>
 
 
-      <div style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}>
+      <nav
+        aria-label="Primary navigation"
+        style={{ padding: '16px 14px', display: 'flex', flexDirection: 'column', gap: '20px', flex: 1 }}
+      >
         {navGroups.map((grp) => (
           <div key={grp.group}>
             <div
@@ -127,6 +130,8 @@ export const Sidebar: React.FC = () => {
                     key={item.path}
                     to={item.path}
                     id={item.id}
+                    aria-label={item.label}
+                    data-testid={item.id}
                     style={({ isActive }) => ({
                       display: 'flex',
                       alignItems: 'center',
@@ -162,7 +167,7 @@ export const Sidebar: React.FC = () => {
             </div>
           </div>
         ))}
-      </div>
+      </nav>
 
 
       <div
