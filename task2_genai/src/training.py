@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import inspect
+import platform
+import importlib.util
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -41,6 +43,43 @@ QLORA_RATIONALE = {
     "objective": "Assistant-only loss prevents the model from learning to copy system/user instructions.",
     "reproducibility": "Seed 42 and recorded package/model revisions make the Colab run repeatable.",
 }
+
+
+def training_preflight() -> dict[str, Any]:
+    report: dict[str, Any] = {
+        "platform": platform.platform(),
+        "python": platform.python_version(),
+        "cuda_available": False,
+        "gpu_name": None,
+        "gpu_memory_mb": None,
+        "packages": {name: bool(importlib.util.find_spec(name)) for name in ("torch", "transformers", "datasets", "peft", "bitsandbytes")},
+        "ready": False,
+        "reason": "CUDA and training dependencies have not been checked",
+    }
+    try:
+        import torch
+        report["cuda_available"] = bool(torch.cuda.is_available())
+        if report["cuda_available"]:
+            report["gpu_name"] = torch.cuda.get_device_name(0)
+            report["gpu_memory_mb"] = round(torch.cuda.get_device_properties(0).total_memory / (1024 ** 2), 2)
+        report["torch_version"] = torch.__version__
+    except Exception as exc:
+        report["reason"] = str(exc)
+    report["ready"] = report["cuda_available"] and all(report["packages"].values())
+    if report["ready"]:
+        report["reason"] = "CUDA and all QLoRA dependencies are available"
+    elif report["cuda_available"]:
+        report["reason"] = "Install every package in requirements-training.txt"
+    else:
+        report["reason"] = "QLoRA requires a CUDA T4 or L4 runtime"
+    return report
+
+
+def write_training_preflight(output: str | Path) -> Path:
+    path = Path(output)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(training_preflight(), indent=2), encoding="utf-8")
+    return path
 
 
 def write_training_config(output: str | Path, config: QLoRAConfig | None = None) -> Path:
