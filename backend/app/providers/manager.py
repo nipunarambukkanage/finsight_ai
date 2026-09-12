@@ -56,6 +56,16 @@ class DemoProvider(BaseLLMProvider):
     async def generate(self, prompt: str, system_prompt: Optional[str] = None, context: Optional[str] = None, **kwargs) -> str:
         lower = prompt.lower()
 
+        if "filingriskoutput" in lower or ("extract only risks" in lower and "filing excerpt:" in lower):
+            document_match = re.search(r"document id:\s*([^\n]+)", prompt, re.IGNORECASE)
+            document_id = document_match.group(1).strip() if document_match else "unknown"
+            excerpt = prompt.split("Filing excerpt:", 1)[1].strip() if "Filing excerpt:" in prompt else ""
+            topic_keywords = (("liquidity", "liquidity"), ("debt", "leverage"), ("customer", "customer_concentration"), ("competition", "competition"), ("regulat", "regulation"), ("security", "cybersecurity"), ("supply", "supply_chain"))
+            category = next((category for keyword, category in topic_keywords if keyword in excerpt.lower()), None)
+            if category and excerpt:
+                return json.dumps({"risks": [{"category": category, "explanation": f"The excerpt provides evidence of {category.replace('_', ' ')} exposure.", "supporting_quote": excerpt, "document_id": document_id, "abstain": False}], "abstain": False, "confidence": 0.62})
+            return json.dumps({"risks": [], "abstain": True, "confidence": 0.4})
+
         if "compare" in lower and ("aapl" in lower or "apple" in lower) and ("msft" in lower or "microsoft" in lower):
             return (
                 "### Comparative Financial & Valuation Analysis: Apple (AAPL) vs. Microsoft (MSFT)\n\n"
