@@ -64,3 +64,7 @@ docs/video-walkthrough-guide-preview.png
 
 frontend/playwright-report/
 frontend/test-results/
+
+task2_genai/artifacts/qlora/
+task2_genai/artifacts/*.safetensors
+task2_genai/artifacts/*.bin
