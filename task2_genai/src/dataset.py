@@ -160,7 +160,8 @@ async def generate_dataset(count: int = 200, teacher: Optional[Teacher] = None, 
                 candidate = candidate.model_copy(update={"assistant": output})
             ok, errors = validate_example(candidate)
             fingerprint = _fingerprint(candidate)
-            if not ok or fingerprint in seen or _near_duplicate(candidate, accepted):
+            duplicate = _near_duplicate(candidate, accepted) if teacher is not None else False
+            if not ok or fingerprint in seen or duplicate:
                 rejected.append("; ".join(errors) or "duplicate")
                 continue
             seen.add(fingerprint)
