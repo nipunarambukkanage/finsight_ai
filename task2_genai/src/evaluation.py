@@ -5,8 +5,21 @@ from __future__ import annotations
 from typing import Any, Iterable
 import json
 from pathlib import Path
+from dataclasses import dataclass, asdict
 
 from .contracts import FilingExample, FilingRiskOutput
+
+
+@dataclass(frozen=True)
+class EvaluationSettings:
+    decoding: str = "greedy"
+    do_sample: bool = False
+    temperature: float = 0.0
+    max_new_tokens: int = 256
+    held_out_source_disjoint: bool = True
+
+    def as_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 def generate_model_outputs(model: Any, tokenizer: Any, examples: list[FilingExample], *, max_new_tokens: int = 256) -> list[str]:
@@ -130,6 +143,6 @@ def write_evaluation(metrics: dict[str, Any], output: str | Path) -> Path:
     """Persist metrics and the required analysis as one reviewable artifact."""
     path = Path(output)
     path.parent.mkdir(parents=True, exist_ok=True)
-    payload = {**metrics, "analysis": evidence_backed_analysis(metrics)}
+    payload = {**metrics, "evaluation_settings": EvaluationSettings().as_dict(), "analysis": evidence_backed_analysis(metrics)}
     path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return path
