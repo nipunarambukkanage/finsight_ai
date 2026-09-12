@@ -40,7 +40,10 @@ class QAAgent:
 
 
         invariants_passed = True
-        lookahead_passed = not any("Look-ahead" in error for error in ast_errors)
+        lookahead_errors = [error for error in ast_errors if "look-ahead" in error.lower() or "lookahead" in error.lower()]
+        lookahead_passed = not lookahead_errors
+        if lookahead_errors:
+            details.extend([f"Look-Ahead Bias Test: FAILED - {error}" for error in lookahead_errors])
         leakage_passed = True
 
         try:
