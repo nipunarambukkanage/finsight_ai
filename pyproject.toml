@@ -21,7 +21,7 @@ include = ["backend*", "task1_financial*", "task2_genai*", "task3_agentic*"]
 api = ["uvicorn[standard]>=0.32.0", "sqlalchemy>=2.0.36", "asyncpg>=0.30.0", "alembic>=1.14.0", "redis>=5.2.0"]
 assessment = ["yfinance>=0.2.50", "feedparser>=6.0.11", "ddgs>=9.0.0", "langchain>=0.3.0", "langgraph>=0.2.0", "matplotlib>=3.9.0"]
 analytics = ["polars>=1.12.0", "duckdb>=1.1.0"]
-training = ["torch>=2.4.0", "accelerate>=1.0.0", "transformers>=4.46.0", "datasets>=3.0.0", "peft>=0.13.0", "trl>=0.12.0", "bitsandbytes>=0.45.0", "evaluate>=0.4.3", "rouge-score>=0.1.2", "bert-score>=0.3.13"]
+training = ["torch>=2.4.0", "accelerate>=1.0.0", "transformers>=4.46.0", "huggingface_hub>=0.26.0", "safetensors>=0.4.5", "datasets>=3.0.0", "peft>=0.13.0", "trl>=0.12.0", "bitsandbytes>=0.45.0", "evaluate>=0.4.3", "rouge-score>=0.1.2", "bert-score>=0.3.13"]
 observability = ["opentelemetry-api>=1.28.0", "opentelemetry-sdk>=1.28.0", "langfuse>=2.50.0", "prometheus-client>=0.21.0"]
 test = ["pytest>=8.3.0", "pytest-asyncio>=0.24.0", "pytest-cov>=6.0.0", "httpx>=0.28.0"]
 
