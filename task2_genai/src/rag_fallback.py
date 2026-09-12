@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
+from pathlib import Path
 from typing import Iterable
 
 from .contracts import FilingExample, FilingRiskOutput
@@ -33,6 +35,22 @@ def select_confidence_threshold(scores: Iterable[tuple[float, bool]]) -> float:
         if f1 > best_f1:
             best_threshold, best_f1 = threshold, f1
     return best_threshold
+
+
+def write_threshold_selection(output: str | Path, validation_scores: Iterable[tuple[float, bool]]) -> float:
+    scores = list(validation_scores)
+    threshold = select_confidence_threshold(scores)
+    path = Path(output)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"status": "completed" if scores else "not_run", "threshold": threshold, "validation_rows": len(scores), "selection": "maximum_binary_abstention_f1"}, indent=2), encoding="utf-8")
+    return threshold
+
+
+def write_before_after_example(output: str | Path, *, before: dict, after: dict, threshold: float) -> Path:
+    path = Path(output)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps({"status": "completed", "threshold": threshold, "before_fine_tuning": before, "after_chroma_fallback": after}, indent=2), encoding="utf-8")
+    return path
 
 
 class ChromaRiskFallback:
