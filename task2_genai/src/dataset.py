@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Awaitable, Callable, Iterable, Optional
 
 from .contracts import FilingExample, FilingRiskOutput, RiskItem
+from .corpus import SOURCE_CORPUS
 from .prompts import TEACHER_SYSTEM_PROMPT, STUDENT_SYSTEM_PROMPT
 
 logger = logging.getLogger(__name__)
@@ -138,7 +139,15 @@ async def generate_dataset(count: int = 200, teacher: Optional[Teacher] = None, 
 
 
 
-    fixture = build_fixture_dataset(count * 2 if teacher is not None else count, seed)
+    if teacher is None:
+        fixture = build_fixture_dataset(count, seed)
+    else:
+        fixture = []
+        requests = ("Assess material exposure.", "Extract evidence-linked risks.", "Summarize the risk implication.", "Check whether management quantifies this risk.", "Identify the affected business area.", "Separate evidence from inference.", "Return abstention if the excerpt is insufficient.", "Preserve the filing company and exact numbers.", "Audit the risk factor.", "Create a concise analyst handoff.")
+        for index in range(count * 2):
+            metadata, topic, excerpt = SOURCE_CORPUS[index % len(SOURCE_CORPUS)]
+            prompt = f"Document: {metadata.document_id}\nCompany: {metadata.company}\nFiling excerpt:\n{excerpt}\n\nTask: {requests[index % len(requests)]}"
+            fixture.append(_fallback_example(index + 1, metadata.document_id, topic, excerpt).model_copy(update={"user": prompt}))
     for index, candidate in enumerate(fixture, start=1):
         if len(accepted) >= count:
             break
@@ -173,11 +182,28 @@ async def generate_dataset(count: int = 200, teacher: Optional[Teacher] = None, 
         "prompt_length_words": {"min": min(lengths, default=0), "max": max(lengths, default=0), "mean": round(sum(lengths) / len(lengths), 2) if lengths else 0},
         "dataset_sha256": _dataset_hash(accepted),
         "source_document_ids": sorted({example.source_document_id for example in accepted}),
-        "generation_settings": {"temperature": 0.2, "response_format": "json_object", "teacher_model": getattr(teacher, "model", "fixture")},
+        "generation_settings": {"temperature": 0.2, "response_format": "json_object", "teacher_model": getattr(teacher, "model", "fixture"), "seed": seed},
         "teacher_prompt": TEACHER_SYSTEM_PROMPT,
         "seed": seed, "mode": "teacher" if teacher else "fixture",
     }
     return accepted, metadata
+
+
+def write_dataset_artifacts(examples: list[FilingExample], metadata: dict[str, Any], output_dir: str | Path) -> dict[str, str]:
+    directory = Path(output_dir)
+    directory.mkdir(parents=True, exist_ok=True)
+    splits = split_source_disjoint(examples, seed=int(metadata.get("seed", 42)))
+    paths: dict[str, str] = {}
+    for name, rows in splits.items():
+        path = to_chat_jsonl(rows, directory / f"{name}.jsonl")
+        paths[name] = str(path)
+    manifest = dict(metadata)
+    manifest["artifact_paths"] = paths
+    manifest["source_split_audit"] = {name: sorted({row.source_document_id for row in rows}) for name, rows in splits.items()}
+    manifest_path = directory / "dataset_manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
+    paths["manifest"] = str(manifest_path)
+    return paths
 
 
 def to_chat_jsonl(examples: Iterable[FilingExample], output: str | Path) -> Path:
