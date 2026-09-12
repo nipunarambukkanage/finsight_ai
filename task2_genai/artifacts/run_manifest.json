@@ -1,0 +1,31 @@
+{
+  "task": "task2_genai",
+  "schema_version": "1.0",
+  "run_id": null,
+  "status": "not_run",
+  "evidence_status": "assessment_evidence_pending",
+  "mode": "live_teacher_gpu_required",
+  "student_model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "teacher_model": "qwen/qwen3.6-27b",
+  "dataset": {
+    "target_examples": 200,
+    "split": {"train": 160, "validation": 20, "test": 20},
+    "source_disjoint": true,
+    "abstention_target_fraction": 0.2
+  },
+  "phases": {
+    "teacher_preflight": "not_run",
+    "dataset_generation": "not_run",
+    "qlora_training": "not_run",
+    "merged_checkpoint": "not_run",
+    "evaluation": "not_run",
+    "manual_review": "not_run",
+    "rag_bonus": "not_run"
+  },
+  "artifacts": {},
+  "limitations": [
+    "A real teacher dataset requires GROQ_API_KEY and a successful provider quota check.",
+    "QLoRA requires a CUDA GPU with bitsandbytes support, normally a free Colab T4 or L4.",
+    "No model weights or metrics are claimed until the live run writes them."
+  ]
+}
