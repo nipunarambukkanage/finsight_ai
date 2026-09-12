@@ -82,6 +82,14 @@ def write_training_preflight(output: str | Path) -> Path:
     return path
 
 
+def write_oom_experiment(output: str | Path, *, status: str = "not_run", error: str | None = None, resolution: str | None = None) -> Path:
+    path = Path(output)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    payload = {"experiment": "qlora_memory_safety", "status": status, "error": error, "resolution": resolution, "configuration": asdict(QLoRAConfig())}
+    path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    return path
+
+
 def write_training_config(output: str | Path, config: QLoRAConfig | None = None) -> Path:
     path = Path(output)
     path.parent.mkdir(parents=True, exist_ok=True)
