@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["target_count", "count", "split_sizes", "dataset_sha256", "source_document_ids"],
+  "properties": {
+    "target_count": {"type": "integer", "minimum": 200},
+    "count": {"type": "integer", "minimum": 0},
+    "split_sizes": {"type": "object", "required": ["train", "validation", "test"]},
+    "dataset_sha256": {"type": "string", "minLength": 64, "maxLength": 64},
+    "source_document_ids": {"type": "array", "items": {"type": "string"}}
+  }
+}
