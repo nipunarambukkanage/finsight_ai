@@ -146,8 +146,9 @@ async def generate_dataset(count: int = 200, teacher: Optional[Teacher] = None, 
         requests = ("Assess material exposure.", "Extract evidence-linked risks.", "Summarize the risk implication.", "Check whether management quantifies this risk.", "Identify the affected business area.", "Separate evidence from inference.", "Return abstention if the excerpt is insufficient.", "Preserve the filing company and exact numbers.", "Audit the risk factor.", "Create a concise analyst handoff.")
         for index in range(count):
             metadata, topic, excerpt = SOURCE_CORPUS[index % len(SOURCE_CORPUS)]
-            angle = ("quantification", "materiality", "time horizon", "sensitivity", "mitigation", "exposure", "disclosure scope", "operating impact", "investor question", "review note")[index % 10]
-            prompt = f"Document: {metadata.document_id}\nCompany: {metadata.company}\nFiling excerpt:\n{excerpt}\n\nTask: {requests[index % len(requests)]}\nReview angle: {angle}. Sample window {index + 1}."
+            variation_index = index // len(SOURCE_CORPUS)
+            angle = ("quantification", "materiality", "time horizon", "sensitivity", "mitigation", "exposure", "disclosure scope", "operating impact", "investor question", "review note")[variation_index % 10]
+            prompt = f"Document: {metadata.document_id}\nCompany: {metadata.company}\nFiling excerpt:\n{excerpt}\n\nTask: {requests[variation_index % len(requests)]}\nReview angle: {angle}. Sample window {index + 1}."
             fixture.append(_fallback_example(index + 1, metadata.document_id, topic, excerpt).model_copy(update={"user": prompt}))
     for index, candidate in enumerate(fixture, start=1):
         if len(accepted) >= count:
