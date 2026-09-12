@@ -1,0 +1,7 @@
+{
+  "ready": false,
+  "cuda_available": false,
+  "gpu_name": null,
+  "gpu_memory_mb": null,
+  "reason": "Run on a free Colab T4 or L4 after installing requirements-training.txt"
+}

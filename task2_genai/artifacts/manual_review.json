@@ -1,0 +1,5 @@
+{
+  "status": "not_run",
+  "required_rows": 10,
+  "reason": "Candidate must label ten held-out outputs after a live evaluation"
+}

@@ -1,0 +1,6 @@
+{
+  "artifact": "merged_student_model",
+  "status": "not_run",
+  "base_model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "upload_status": "not_uploaded"
+}

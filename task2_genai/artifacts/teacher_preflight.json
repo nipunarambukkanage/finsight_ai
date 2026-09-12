@@ -1,0 +1,7 @@
+{
+  "available": false,
+  "model": "qwen/qwen3.6-27b",
+  "reason": "Live provider preflight has not been run in this workspace",
+  "models_seen": 0,
+  "rate_limit_headers": {}
+}
